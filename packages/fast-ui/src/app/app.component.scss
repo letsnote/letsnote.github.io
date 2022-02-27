@@ -1,0 +1,26 @@
+@import "bootstrap/scss/bootstrap-utilities.scss";
+
+:host{
+    @extend .h-100;
+}
+.outer{
+    @extend .h-100;
+    @extend .no-scrollbar-with-flex;
+    background-color: var(--my-gray);
+}
+.no-scrollbar-with-flex{
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.spliter{
+    height: $spacer * 0.05;
+    background-color: var(--my-light-dark-gray);
+}
+.header-box{
+    @extend .pb-2;
+}
+.list-box{
+    @extend .no-scrollbar-with-flex;
+    flex: 1;
+}

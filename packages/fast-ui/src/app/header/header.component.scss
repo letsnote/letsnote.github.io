@@ -1,0 +1,20 @@
+@import "bootstrap/scss/bootstrap-utilities.scss";
+
+:host{
+    display: flex;
+    flex-direction: column;
+}
+.first-line{
+    display: flex;
+    height: ($spacer * 3);
+    @extend .ps-3;
+}
+.second-line{
+    display: flex;
+    height: ($spacer * 1.75);
+    @extend .ps-3;
+}
+.title{
+    flex: 1;
+    @extend .fs-5;
+}

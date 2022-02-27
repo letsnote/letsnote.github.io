@@ -1,0 +1,30 @@
+@import "bootstrap/scss/bootstrap-utilities.scss";
+
+:host{
+    @extend .mt-2;
+    @extend .p-2;
+    background-color: white;
+}
+
+:host:hover{
+    @extend .shadow;
+}
+
+.left{
+    width: $spacer * 5;
+    height: $spacer * 4;
+}
+.right{
+    @extend .p-2;
+}
+img{
+    width: 100%;
+    height: 100%;
+}
+.box{
+    display: flex;
+}
+.desc{
+    color: var(--my-dark-gray);
+    font-size: $spacer * 0.75;
+}

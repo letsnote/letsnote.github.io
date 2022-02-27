@@ -24,6 +24,10 @@ export class ShellElement extends HTMLElement {
     this.outer.style.display = 'none';
   }
 
+  isShown(){
+    return this.outer.style.display == '';
+  }
+
   /**
    * @deprecated
    * @param message 

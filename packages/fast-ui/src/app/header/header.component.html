@@ -1,0 +1,17 @@
+<div class="first-line">
+    <div class="m-auto title ">Thesis Note</div>
+    <div class="m-auto">
+        <button pButton pRipple type="button" icon="pi pi-ellipsis-h"
+            class="p-button-rounded p-button-text p-button-sm" (click)="menu.toggle($event)"></button>
+        <button pButton pRipple type="button" icon="pi pi-times"
+            class="p-button-rounded p-button-text p-button-sm" (click)="close()"></button>
+        <p-menu #menu [popup]="true" [model]="menuItems"></p-menu>
+    </div>
+</div>
+
+<div class="second-line">
+    <div class="m-auto" style="flex: 1;"><span>그룹</span></div>
+    <div class="m-auto"><button pButton pRipple type="button" icon="pi pi-plus" label="새 그룹"
+            class="p-button-rounded p-button-text p-button-sm"></button>
+    </div>
+</div>

@@ -1,6 +1,7 @@
 ///<reference types="chrome"/>
 
 import { Component } from '@angular/core';
+import { GroupListModel } from './group-list/group-list.component';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -19,5 +20,26 @@ export class AppComponent {
 
   close() {
     window?.top?.postMessage('hello', '*');
+  }
+
+  groupListModel: GroupListModel = {
+    groups: [
+      {title:'title', itemCount: 4},
+      {title:'title', itemCount: 4},
+      {title:'title', itemCount: 4},
+      {title:'title', itemCount: 4},
+      {title:'title', itemCount: 4},
+      {title:'title', itemCount: 4},
+      {title:'title', itemCount: 4},
+      {title:'title', itemCount: 4},
+      {title:'title', itemCount: 4},
+      {title:'title', itemCount: 4},
+      {title:'title', itemCount: 4},
+      {title:'title', itemCount: 4},
+      {title:'title', itemCount: 4},
+      {title:'title', itemCount: 4},
+      {title:'title', itemCount: 4},
+      {title:'title', itemCount: 4},
+  ]
   }
 }
