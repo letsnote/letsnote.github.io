@@ -4,6 +4,7 @@
     @extend .h-full;
 }
 .outer{
+    @extend .pr-1;
     @extend .h-full;
     @extend .no-scrollbar-with-flex;
     background-color: var(--my-gray);

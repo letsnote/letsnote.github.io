@@ -3,6 +3,7 @@
 .left{
     display: flex;
     flex-direction: column;
+    flex: 1;
 }
 
 .left > .text-block{
@@ -21,7 +22,7 @@
 .h-box{
     display: flex;
     flex-direction: row;
-    @extend .pb-3;
+    @extend .pb-2;
     cursor: pointer;
 }
 .v-box{
@@ -34,3 +35,6 @@
     }
 }
 
+img{
+    width: 3em;
+}

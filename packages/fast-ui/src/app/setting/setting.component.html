@@ -1,2 +1,11 @@
-<h3>API Key</h3>
-<input type="text" pInputText [formControl]="keyControl">
+<div [formGroup]="formGroup" class="formGroup">
+    <h4>API Key</h4>
+    <input style="width: 100%" type="text" pInputText formControlName="key">
+    <h4>Font Size ({{fontSizeControl.value}}px)</h4>
+    <!-- <input type="text" pInputText formControlName="fontSize"/> -->
+    <p-slider [min]="8" [max]="40" formControlName="fontSize"></p-slider>
+    <h4>Width ({{widthControl.value}}em)</h4>
+    <p-inputNumber class="w-full" [style]="{width:'100%'}" formControlName="width" mode="decimal" [showButtons]="true" inputId="minmax-buttons" [min]="30" [max]="100">
+    </p-inputNumber>
+    <!-- <input min="30" max="100" type="text" pInputText formControlName="width" type="number" /> -->
+</div>

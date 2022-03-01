@@ -21,7 +21,7 @@
   "background": {
     "service_worker": "background.bundle.js"
   },
-  "permissions": [],
+  "permissions": ["activeTab"],
   "manifest_version": 3,
   "web_accessible_resources": [
     {

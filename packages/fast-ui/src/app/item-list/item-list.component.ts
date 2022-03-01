@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { getAnnotations, updateAnnotation } from 'hypothesis-data';
+import { deleteAnnotation, getAnnotations, updateAnnotation } from 'hypothesis-data';
 import { ItemModel, ItemType } from '../item/item.component';
 import { ConfigService } from '../setting/config.service';
 
@@ -26,10 +26,18 @@ export class ItemListComponent implements OnInit {
     updateAnnotation(this.config.key, model.id, {text: model.text});
   }
 
+  async onItemDeleteClick(itemModel: ItemModel) {
+    if (this.model) {
+      await deleteAnnotation(this.config.key, itemModel.id);
+      this.model = {...this.model, rows: this.model?.rows.filter((m) => m.id != itemModel.id) };
+    }
+  }
+
   private async loadItemList() {
     if (this.groupId) {
       let response = await getAnnotations(this.config.key, this.groupId) as ItemListModel;
       response.rows.forEach((row) => {
+        // The type of item is decided by target > selector 
         row.itemType = (row.target.some(t => !!t.selector)) ? ItemType.Annotation : ItemType.PageNote;
       })
       this.model = response;

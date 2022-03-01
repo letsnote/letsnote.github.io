@@ -1,1 +1,1 @@
-<item *ngFor="let i of model?.rows" [model]="i" (finishEditing)="onFinishEditing($event)"></item>
+<item *ngFor="let i of model?.rows" [model]="i" (finishEditing)="onFinishEditing($event)" (itemDeleteClick)="onItemDeleteClick($event)"></item>

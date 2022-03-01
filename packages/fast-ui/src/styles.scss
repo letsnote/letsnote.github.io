@@ -1,17 +1,19 @@
 /* You can add global styles to this file, and also import other style files */
 @import "primeicons/primeicons.css";
+@import "primeflex/primeflex.css";
 @import "primeng/resources/themes/bootstrap4-light-blue/theme.css";
 @import "primeng/resources/primeng.min.css";
-@import "primeflex/primeflex.scss";
 // @import "bootstrap/scss/bootstrap-utilities.scss";
 
 body{
     margin: 0px;
+    font-size: 100%;
 }
 
 html, body {
     height: 100%;
 }
+
 
 :root{
     --my-gray: #f2f2f2;

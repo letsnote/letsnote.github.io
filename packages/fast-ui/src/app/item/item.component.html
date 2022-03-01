@@ -1,6 +1,6 @@
-<div class="v-box" *ngIf="model">
-    <div class="h-box">
-        <div class="left" (click)="onLinkClick()">
+<div class="v-box" *ngIf="model" #box>
+    <div class="h-box" (click)="onLinkClick()">
+        <div class="left">
             <div>
                 <span>{{model.itemType === 0 ? 'Annotation' : 'Page Note'}}</span>
                 <span *ngIf="url !== undefined"><span> in </span>
@@ -12,15 +12,18 @@
             </div>
         </div>
         <div class="right">
-            <img>
+            <img src="{{image}}">
         </div>
     </div>
-    <div class="spliter"></div>
-    <div class="note-box" (dblclick)="onTryEdit()">
+    <div class="spliter" *ngIf="(model.text && model.text.length > 0) || noteBoxMode === 0"></div>
+    <div class="note-box"  *ngIf="(model.text && model.text.length > 0) || noteBoxMode === 0" (dblclick)="onTryEdit()">
         <markdown *ngIf="noteBoxMode === 1" ngPreserveWhitespaces>
             {{model.text}}
         </markdown>
         <textarea autofocus #textarea (blur)="onStopEditing()" *ngIf="noteBoxMode === 0" rows="5" pInputTextarea
             [autoResize]="autoResize" [(ngModel)]="model.text"></textarea>
     </div>
+
+    <p-contextMenu [target]="box" [model]="contextMenuItems"></p-contextMenu>
 </div>
+<p-confirmPopup></p-confirmPopup>

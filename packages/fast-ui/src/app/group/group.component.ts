@@ -32,7 +32,7 @@ export class GroupComponent implements OnInit {
 
   contextMenuItems: MenuItem[] = [
     {
-      label: '그룹삭제',
+      label: '그룹 삭제',
       command: (event) => {this.onGroupDeleteClick(event)}
     }];
     

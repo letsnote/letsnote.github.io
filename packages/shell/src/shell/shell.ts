@@ -20,12 +20,16 @@ export class ShellElement extends HTMLElement {
     this.outer.style.zIndex = `${zindex}`;
   }
 
+  setWidth(width: number){
+    this.outer.style.width = `${width}em`;
+  }
+
   hide() {
     this.outer.style.display = 'none';
   }
 
   isShown(){
-    return this.outer.style.display == '';
+    return this.outer.style.display !== 'none';
   }
 
   /**

@@ -19,8 +19,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {InputTextareaModule} from 'primeng/inputtextarea';
 import {BreadcrumbModule} from 'primeng/breadcrumb';
 import {ContextMenuModule} from 'primeng/contextmenu';
-
+import {SliderModule} from 'primeng/slider';
 import {ConfirmPopupModule} from 'primeng/confirmpopup';
+import {InputNumberModule} from 'primeng/inputnumber';
 @NgModule({
   declarations: [
     AppComponent,
@@ -45,6 +46,8 @@ import {ConfirmPopupModule} from 'primeng/confirmpopup';
     BreadcrumbModule,
     ReactiveFormsModule,
     ConfirmPopupModule,
+    SliderModule,
+    InputNumberModule,
     MarkdownModule.forRoot({ loader: HttpClient }),
   ],
   providers: [],

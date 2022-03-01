@@ -1,4 +1,5 @@
 import { Action } from "../common/action";
+import { Message } from "../common/message";
 
 export function entrypoint() {
   chrome.runtime.onInstalled.addListener(() => {});
