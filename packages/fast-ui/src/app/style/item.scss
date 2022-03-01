@@ -1,0 +1,16 @@
+@import "primeflex/primeflex.scss";
+
+:host{
+    @extend .mt-2;
+    @extend .p-2;
+    background-color: white;
+}
+
+:host:hover{
+    @extend .shadow-1;
+}
+
+.spliter{
+    height: $spacer * 0.05;
+    background-color: var(--my-light-dark-gray);
+}

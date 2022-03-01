@@ -1,13 +1,16 @@
-@import "bootstrap/scss/bootstrap-utilities.scss";
+@import "../style/item.scss";
 
 :host{
     @extend .mt-2;
     @extend .p-2;
     background-color: white;
+    :hover{
+        cursor: pointer;
+    }
 }
 
 :host:hover{
-    @extend .shadow;
+    @extend .shadow-3;
 }
 
 .left{

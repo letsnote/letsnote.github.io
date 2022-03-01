@@ -14,7 +14,13 @@ import { GroupComponent } from './group/group.component';
 import {MenuModule} from 'primeng/menu';
 import { ItemListComponent } from './item-list/item-list.component';
 import { SettingComponent } from './setting/setting.component';
+import { InputTextModule } from 'primeng/inputtext'
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {InputTextareaModule} from 'primeng/inputtextarea';
+import {BreadcrumbModule} from 'primeng/breadcrumb';
+import {ContextMenuModule} from 'primeng/contextmenu';
 
+import {ConfirmPopupModule} from 'primeng/confirmpopup';
 @NgModule({
   declarations: [
     AppComponent,
@@ -32,6 +38,13 @@ import { SettingComponent } from './setting/setting.component';
     HttpClientModule,
     ButtonModule,
     MenuModule,
+    InputTextModule,
+    ContextMenuModule,
+    FormsModule,
+    InputTextareaModule,
+    BreadcrumbModule,
+    ReactiveFormsModule,
+    ConfirmPopupModule,
     MarkdownModule.forRoot({ loader: HttpClient }),
   ],
   providers: [],

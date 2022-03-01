@@ -1,0 +1,36 @@
+// @import "bootstrap/scss/bootstrap";
+@import "../style/item.scss";
+.left{
+    display: flex;
+    flex-direction: column;
+}
+
+.left > .text-block{
+    flex: 1;
+}
+
+.h-box:hover .hostname{
+    text-decoration: underline;
+}
+
+.hostname{
+    color: var(--my-link);
+    text-decoration: unset;
+}
+
+.h-box{
+    display: flex;
+    flex-direction: row;
+    @extend .pb-3;
+    cursor: pointer;
+}
+.v-box{
+    display: flex;
+    flex-direction: column;
+}
+.note-box{
+    textarea{
+        width: 100%;
+    }
+}
+

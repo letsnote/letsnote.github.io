@@ -1,10 +1,10 @@
-@import "bootstrap/scss/bootstrap-utilities.scss";
+@import "primeflex/primeflex.scss";
 
 :host{
-    @extend .h-100;
+    @extend .h-full;
 }
 .outer{
-    @extend .h-100;
+    @extend .h-full;
     @extend .no-scrollbar-with-flex;
     background-color: var(--my-gray);
 }

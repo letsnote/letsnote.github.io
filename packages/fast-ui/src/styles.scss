@@ -2,18 +2,20 @@
 @import "primeicons/primeicons.css";
 @import "primeng/resources/themes/bootstrap4-light-blue/theme.css";
 @import "primeng/resources/primeng.min.css";
-@import "bootstrap/scss/bootstrap-utilities.scss";
+@import "primeflex/primeflex.scss";
+// @import "bootstrap/scss/bootstrap-utilities.scss";
 
 body{
     margin: 0px;
 }
 
 html, body {
-    @extend .h-100;
+    height: 100%;
 }
 
 :root{
     --my-gray: #f2f2f2;
     --my-dark-gray: #6c6c6c;
     --my-light-dark-gray: #c0c0c0;
+    --my-link: #1669bb
 }

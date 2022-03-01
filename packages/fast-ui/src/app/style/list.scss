@@ -1,0 +1,12 @@
+// @import "bootstrap/scss/bootstrap-utilities.scss";
+// @import "bootstrap/scss/bootstrap";
+@import "primeflex/primeflex.scss";
+
+:host{
+    display: flex;
+    flex-direction: column;
+    @extend .pl-2;
+    @extend .pr-2;
+    overflow-y: auto;
+    // flex: 1;
+}

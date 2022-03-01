@@ -3,7 +3,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 
 module.exports = {
-    entry: {shell: './out/shell/main.js', background: './out/background/main.js'},
+    entry: { shell: './out/shell/main.js', background: './out/background/main.js' },
     output: {
         filename: '[name].bundle.js',
         path: path.resolve(__dirname, 'out/webpack'),
@@ -21,24 +21,42 @@ module.exports = {
                 use: ["source-map-loader"],
                 enforce: "pre",
                 exclude: /node_modules/
+            },
+            // {
+            //     test: /\.css$/i,
+            //     use: [{ loader: 'to-string-loader' }, {
+            //         loader: 'css-loader',
+            //     }],
+            // },
+            {
+                test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
+                use: [
+                    {
+                        loader: 'file-loader',
+                        options: {
+                            name: '[name].[ext]',
+                            outputPath: 'fonts/'
+                        }
+                    }
+                ]
             }
         ]
     },
     resolve: {
         modules: ['./node_modules'],
-        extensions: ['.js','.html'],
+        extensions: ['.js', '.html'],
         alias: {
             resource: path.resolve('./src/shell'), // require('resource/xxx.html')
         }
     },
     mode: 'development',
     plugins: [
-      new CopyWebpackPlugin({
-          patterns: [
-              { from: 'manifest.json' },
-              { from: 'node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js' },
-              { from: '../fast-ui/dist/fast-ui', to: 'fast-ui' },
-          ]
-      })
-  ]
+        new CopyWebpackPlugin({
+            patterns: [
+                { from: 'manifest.json' },
+                { from: 'node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js' },
+                { from: '../fast-ui/dist/fast-ui', to: 'fast-ui' },
+            ]
+        })
+    ]
 };

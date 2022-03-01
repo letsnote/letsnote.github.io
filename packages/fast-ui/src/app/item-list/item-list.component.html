@@ -1,1 +1,1 @@
-<p>item-list works!</p>
+<item *ngFor="let i of model?.rows" [model]="i" (finishEditing)="onFinishEditing($event)"></item>

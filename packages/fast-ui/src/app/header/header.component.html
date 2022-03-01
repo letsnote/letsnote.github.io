@@ -1,17 +1,26 @@
 <div class="first-line">
-    <div class="m-auto title ">Thesis Note</div>
+    <div class="m-auto title">
+        <p-breadcrumb [model]="breadcrumbItems"></p-breadcrumb>
+    </div>
     <div class="m-auto">
-        <button pButton pRipple type="button" icon="pi pi-ellipsis-h"
-            class="p-button-rounded p-button-text p-button-sm" (click)="menu.toggle($event)"></button>
-        <button pButton pRipple type="button" icon="pi pi-times"
-            class="p-button-rounded p-button-text p-button-sm" (click)="close()"></button>
+        <button pButton pRipple type="button" icon="pi pi-ellipsis-h" class="p-button-rounded p-button-text p-button-sm"
+            (click)="menu.toggle($event)"></button>
+        <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-text p-button-sm"
+            (click)="close()"></button>
         <p-menu #menu [popup]="true" [model]="menuItems"></p-menu>
     </div>
 </div>
 
 <div class="second-line">
-    <div class="m-auto" style="flex: 1;"><span>그룹</span></div>
+    <div class="m-auto" style="flex: 1;">
+        <span class="p-input-icon-left">
+            <i class="pi pi-search"></i>
+            <input type="text" pInputText [(ngModel)]="searchKeyword" placeholder="검색" class="p-inputtext-sm">
+        </span>
+    </div>
     <div class="m-auto"><button pButton pRipple type="button" icon="pi pi-plus" label="새 그룹"
-            class="p-button-rounded p-button-text p-button-sm"></button>
+            class="p-button-rounded p-button-text p-button-sm" (click)="onNewGroup()" *ngIf="currentRoute === 0"></button>
+            <button pButton pRipple type="button" icon="pi pi-plus" label="새 페이지 노트"
+            class="p-button-rounded p-button-text p-button-sm" (click)="onNewPageNote()" *ngIf="currentRoute === 1"></button>
     </div>
 </div>

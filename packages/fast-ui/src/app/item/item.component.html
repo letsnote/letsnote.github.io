@@ -1,1 +1,26 @@
-<p>item works!</p>
+<div class="v-box" *ngIf="model">
+    <div class="h-box">
+        <div class="left" (click)="onLinkClick()">
+            <div>
+                <span>{{model.itemType === 0 ? 'Annotation' : 'Page Note'}}</span>
+                <span *ngIf="url !== undefined"><span> in </span>
+                    <a class="hostname" href="{{url.toString()}}" target="_blank">
+                        <i class="pi pi-globe"></i> {{url.hostname}}</a></span>
+            </div>
+            <div>
+                {{model.document.title?.[0]}}
+            </div>
+        </div>
+        <div class="right">
+            <img>
+        </div>
+    </div>
+    <div class="spliter"></div>
+    <div class="note-box" (dblclick)="onTryEdit()">
+        <markdown *ngIf="noteBoxMode === 1" ngPreserveWhitespaces>
+            {{model.text}}
+        </markdown>
+        <textarea autofocus #textarea (blur)="onStopEditing()" *ngIf="noteBoxMode === 0" rows="5" pInputTextarea
+            [autoResize]="autoResize" [(ngModel)]="model.text"></textarea>
+    </div>
+</div>
