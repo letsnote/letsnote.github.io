@@ -3,6 +3,9 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import * as api from 'hypothesis-data';
 import { createAnnotations, getProfile } from 'hypothesis-data';
 import { MenuItem } from 'primeng/api';
+import { TextFragment } from 'text-fragments-polyfill/dist/fragment-generation-utils';
+import { ExtensionService } from '../fragment/extension.service';
+import { composeUrl } from '../fragment/fragment';
 import { GroupModel } from '../group/group.component';
 import { ConfigService } from '../setting/config.service';
 
@@ -26,10 +29,9 @@ export class HeaderComponent implements OnInit {
   group: GroupModel | undefined;
   currentRoute: CurrentRoute = CurrentRoute.Home;
 
-  constructor(public config: ConfigService, private router: Router) {
+  constructor(public config: ConfigService, private router: Router, private extensionService: ExtensionService) {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
-        console.debug('url is', event);
         this.group = undefined;
         if (event.urlAfterRedirects.includes('groups')) {
           this.currentRoute = CurrentRoute.Group;
@@ -71,6 +73,10 @@ export class HeaderComponent implements OnInit {
         }
       }
     });
+
+    extensionService.requestFromContextMenu.subscribe(({groupId}) => {
+      this.onNewNote(groupId);
+    })
   }
   close() {
     console.debug('close');
@@ -102,30 +108,47 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  async onNewPageNote() {
+  async onNewNote(groupId?: string) {
     const profile = await getProfile(this.config.key);
-    const groupId = this.group?.id as string;
-    chrome?.tabs?.query({ active: true, currentWindow: true }, (tab) => {
-      if (tab) {
-        const title = tab[0].title as string;
-        const uri = tab[0].url as string;
-        let uriWithMeta = uri;
-        const favicon = tab[0].favIconUrl;
-        if (favicon) {
-          const meta = {favicon};
-          if (uri.includes('#')) {
-            uriWithMeta = `${uri}:~:meta=${JSON.stringify(meta)}`;
-          } else {
-            uriWithMeta = `${uri}#:~:meta=${JSON.stringify(meta)}`;
-          }
-        }
+    const group = groupId ?? this.group?.id as string;
+    chrome?.tabs?.query({ active: true, currentWindow: true }, async (tabs) => {
+      const tab = tabs[0];
+      if (tab && tab.id && tab.title && tab.url) {
+        const tabId = tab.id;
+        const title = tab.title;
+        const url = tab.url;
+        const favicon = tab.favIconUrl;
+        const fragment = await new Promise<
+          | {
+              fullUrl: string;
+              fragment: TextFragment;
+              textDirectiveParameters: string;
+              selectedText: string;
+            }
+          | undefined
+        >((resolve) => {
+          chrome.tabs.sendMessage(tabId, { type: 1 }, (res) => {
+            resolve(res);
+          });
+        });
+        let meta = {};
+        if (favicon) meta = { ...meta, favicon };
+        const newUrl = composeUrl(url, {
+          metaDirectiveParameter: JSON.stringify(meta),
+          textDirectiveParameter: fragment?.textDirectiveParameters,
+        });
+        // if (uri.includes('#')) {
+        //   uriWithMeta = `${uri}:~:meta=${JSON.stringify(meta)}`;
+        // } else {
+        //   uriWithMeta = `${uri}#:~:meta=${JSON.stringify(meta)}`;
+        // }
         createAnnotations(this.config.key, {
-          group: groupId,
+          group,
           tags: [],
           text: '',
           user: profile.userid,
           document: { title: [title] },
-          uri: uriWithMeta,
+          uri: newUrl.url.toString(),
           target: [],
           references: [],
           permissions: {

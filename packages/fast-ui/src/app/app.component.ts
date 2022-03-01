@@ -2,6 +2,7 @@
 
 import { AfterViewInit, Component, ElementRef, OnChanges, ViewChild } from '@angular/core';
 import { createGroup } from 'hypothesis-data';
+import { ExtensionService } from './fragment/extension.service';
 import { GroupListModel } from './group-list/group-list.component';
 import { ConfigService } from './setting/config.service';
 @Component({
@@ -16,31 +17,26 @@ export class AppComponent implements AfterViewInit {
   @ViewChild("outer")
   outerElementRef: ElementRef | undefined;
 
-  constructor(private config: ConfigService) {
-    if (window) {
-      window.onmessage = (e) => {
-        this.got = 'got got'
-      };
-    }
+  constructor(private config: ConfigService, private extension: ExtensionService) {
   }
 
   ngAfterViewInit(): void {
     this.config.fontSizeObservable.subscribe((pxSize) => {
-      if(this.outerElementRef){
+      if (this.outerElementRef) {
         let outer = (this.outerElementRef.nativeElement as HTMLDivElement);
-        if(document.body.parentElement)
+        if (document.body.parentElement)
           document.body.parentElement.style.fontSize = `${pxSize}px`;
       }
     });
 
     this.config.widthObservable.subscribe((emSize) => {
-        const msg = {type: 2, size: emSize};
-        window?.top?.postMessage(JSON.stringify(msg), '*');
+      const msg = { type: 2, size: emSize };
+      this.extension.sendMessageToParent(msg);
     });
   }
 
   onClose() {
-    const msg = {type: 3};
-    window?.top?.postMessage(JSON.stringify(msg), '*');
+    const msg = { type: 3 };
+    this.extension.sendMessageToParent(msg);
   }
 }

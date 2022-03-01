@@ -33,7 +33,6 @@ export class ShellElement extends HTMLElement {
   }
 
   /**
-   * @deprecated
    * @param message 
    */
   sendMessage(message: string){

@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 import { updateAnnotation } from 'hypothesis-data';
 import { ConfirmationService, MenuItem } from 'primeng/api';
+import { composeUrl } from '../fragment/fragment';
 
 @Component({
   selector: 'item',
@@ -40,11 +41,12 @@ export class ItemComponent implements OnInit, OnChanges {
   textarea: ElementRef | undefined;
   @Output('itemDeleteClick')
   itemDeleteEmitter = new EventEmitter();
-
-  onLinkClick() {
+  @ViewChild('anchor')
+  anchorElement: ElementRef | undefined;
+  async onLinkClick() {
     if (this.url) {
       this.itemClick.emit(this.model);
-      window.open(`${this.url.toString()}`);
+      this.anchorElement?.nativeElement.click();
     }
   }
 
@@ -59,8 +61,7 @@ export class ItemComponent implements OnInit, OnChanges {
 
   onStopEditing() {
     this.finishEditingEmitter.emit(this.model);
-    if(this.model)
-      this.updateContextMenu(this.model);
+    if (this.model) this.updateContextMenu(this.model);
     this.noteBoxMode = NoteBoxMode.View;
   }
 
@@ -97,7 +98,8 @@ export class ItemComponent implements OnInit, OnChanges {
       const model = changes['model'].currentValue as ItemModel;
       this.updateContextMenu(model);
       try {
-        const metaString = model.uri.split(':~:meta=')[1];
+        let { directiveMap } = composeUrl(model.uri);
+        const metaString = directiveMap.get('meta');
         if (metaString) {
           const meta: { favicon: string } = JSON.parse(metaString);
           this.image = meta.favicon;

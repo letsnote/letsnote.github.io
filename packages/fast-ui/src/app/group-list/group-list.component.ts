@@ -6,6 +6,7 @@ import { ConfigService } from '../setting/config.service';
 import { MenuItem } from 'primeng/api';
 import { deleteGroup } from 'hypothesis-data';
 import { ConfirmationService } from 'primeng/api';
+import { ExtensionService } from '../fragment/extension.service';
 
 @Component({
   templateUrl: './group-list.component.html',
@@ -14,7 +15,7 @@ import { ConfirmationService } from 'primeng/api';
 export class GroupListComponent implements OnInit {
 
   model: GroupListModel = { groups: [] };
-  constructor(private config: ConfigService, private router: Router) { }
+  constructor(private config: ConfigService, private router: Router, private extensionService: ExtensionService) { }
   cacheKey = "item_count_cache_key"
 
 
@@ -29,22 +30,23 @@ export class GroupListComponent implements OnInit {
     const cacheString = localStorage.getItem(this.cacheKey);
     const cache = cacheString ? JSON.parse(cacheString) as ItemCountCache : null;
     if (!cache || // Invalidate ten minutes later
-      30 < (Math.abs(new Date(cache.date).getTime() - Date.now()) / (1000 * 60))){
+      30 < (Math.abs(new Date(cache.date).getTime() - Date.now()) / (1000 * 60))) {
       for (let group of this.model.groups) {
         await this.updateItemCount(group);
       }
       const itemCountCache: ItemCountCache = {
         date: new Date()
         , data: this.model.groups.reduce((p, c) => {
-          return {...p, [c.id]: c.itemCount}
-        },{})
+          return { ...p, [c.id]: c.itemCount }
+        }, {})
       };
       localStorage.setItem(this.cacheKey, JSON.stringify(itemCountCache));
-    }else{
+    } else {
       for (let group of this.model.groups) {
         group.itemCount = cache?.data[group.id] ?? await this.updateItemCount(group);
       }
     }
+    this.onGroupListUpdate();
   }
 
   private async updateItemCount(groupModel: GroupModel) {
@@ -59,6 +61,12 @@ export class GroupListComponent implements OnInit {
   async onGroupDeleteClick(model: GroupModel) {
     await deleteGroup(this.config.key, model.id);
     this.model.groups = this.model.groups.filter(m => m.id != model.id);
+    this.onGroupListUpdate();
+  }
+
+  onGroupListUpdate() {
+    //TODO
+    this.extensionService.updateContextMenu(this.model);
   }
 }
 

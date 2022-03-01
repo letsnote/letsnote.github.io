@@ -1,7 +1,9 @@
+import { send } from "process";
 import { Action } from "../common/action";
 import { Message } from "../common/message";
 export function entrypoint() {
-  chrome.runtime.onInstalled.addListener(() => { });
+  chrome.runtime.onInstalled.addListener(() => {
+  });
 
   chrome.action.onClicked.addListener((tab) => {
     if (tab?.id) {
@@ -9,7 +11,7 @@ export function entrypoint() {
     }
   });
 
-  chrome.runtime.onMessage.addListener((msg) => {
+  chrome.runtime.onMessage.addListener((msg, sender) => {
     if (msg.type === Action.SHOWN)
       chrome.action.setIcon(
         {
@@ -20,7 +22,8 @@ export function entrypoint() {
             '24': 'resource/24.png',
             '64': 'resource/64.png',
             '128': 'resource/128.png',
-          }
+          },
+          tabId: sender.tab?.id
         }
       )
     else if (msg.type === Action.HIDDEN) {
@@ -33,9 +36,11 @@ export function entrypoint() {
             '24': 'resource/w24.png',
             '64': 'resource/w64.png',
             '128': 'resource/w128.png',
-          }
+          },
+          tabId: sender.tab?.id
         });
     }
   })
 }
+
 entrypoint();

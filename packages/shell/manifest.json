@@ -29,7 +29,8 @@
     "service_worker": "background.bundle.js"
   },
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "contextMenus"
   ],
   "manifest_version": 3,
   "web_accessible_resources": [

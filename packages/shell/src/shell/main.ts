@@ -1,13 +1,13 @@
 import { Action } from "../common/action";
 import { Message } from "../common/message";
+import { getUrlWithTextFragment } from "./fragment";
 import { ShellElement } from "./shell";
 
 function entrypoint() {
-  // await loadFontOnDocument(document);
   const shell = new ShellElement();
   document.body.appendChild(shell);
   shell.hide();
-  chrome.runtime.sendMessage({type: Action.HIDDEN});
+  chrome.runtime.sendMessage({ type: Action.HIDDEN });
 
   window.onmessage = (e) => {
     try {
@@ -17,23 +17,40 @@ function entrypoint() {
       }
       if (msg.type == Action.CLOSE) {
         shell.hide();
-        chrome.runtime.sendMessage({type: Action.HIDDEN});
+        chrome.runtime.sendMessage({ type: Action.HIDDEN });
       }
-    } catch (e) { }
+      if (msg.type == Action.REQUEST_FRAGMENT) {
+        (async () => {
+          const urlWithTextFragment = getUrlWithTextFragment();
+          if (urlWithTextFragment)
+            shell.sendMessage(
+              JSON.stringify({
+                type: Action.RESPONSE_FRAGMENT,
+                id: (msg as any).id,
+                data: urlWithTextFragment,
+              })
+            );
+        })();
+      }
+    } catch (e) {}
   };
 
-  chrome.runtime.onMessage.addListener((message: Message) => {
-    if (message.type == Action.TOGGLE_CLICKED) {
-      if (shell.isShown()) {
-        shell.hide();
-        chrome.runtime.sendMessage({type: Action.HIDDEN});
-      }
-      else {
-        shell.show();
-        chrome.runtime.sendMessage({type: Action.SHOWN});
+  chrome.runtime.onMessage.addListener(
+    (message: Message, sender, sendResponse) => {
+      if (message.type == Action.TOGGLE_CLICKED) {
+        if (shell.isShown()) {
+          shell.hide();
+          chrome.runtime.sendMessage({ type: Action.HIDDEN });
+        } else {
+          shell.show();
+          chrome.runtime.sendMessage({ type: Action.SHOWN });
+        }
+      } else if (message.type == Action.REQUEST_FRAGMENT) {
+        const urlWithTextFragment = getUrlWithTextFragment();
+        sendResponse(urlWithTextFragment);
       }
     }
-  });
+  );
 }
 
 entrypoint();

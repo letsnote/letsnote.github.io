@@ -4,7 +4,7 @@
             <div>
                 <span>{{model.itemType === 0 ? 'Annotation' : 'Page Note'}}</span>
                 <span *ngIf="url !== undefined"><span> in </span>
-                    <a class="hostname" href="{{url.toString()}}" target="_blank">
+                    <a class="hostname" #anchor href="{{url.toString()}}" target="_blank">
                         <i class="pi pi-globe"></i> {{url.hostname}}</a></span>
             </div>
             <div>
