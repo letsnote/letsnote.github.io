@@ -35,3 +35,4 @@ coverage/
 node_modules
 out
 dist
+*.tgz

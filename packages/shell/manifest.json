@@ -1,7 +1,7 @@
 {
   "name": "Thesis Note",
   "version": "0.0.1",
-  "description": "An extension provides user interface like MSEdge Collection and the database backend with Hypothesis API.",
+  "description": "An extension provides user interface like Edge Collection and the database backend with Hypothesis API.",
   "content_scripts": [
     {
       "matches": [
@@ -15,18 +15,31 @@
       "css": []
     }
   ],
+  "icons": {
+    "16": "resource/w16.png",
+    "24": "resource/w24.png",
+    "32": "resource/w32.png",
+    "64": "resource/w64.png",
+    "128": "resource/w128.png"
+  },
   "action": {
     "default_title": "Thesis Note"
   },
   "background": {
     "service_worker": "background.bundle.js"
   },
-  "permissions": ["activeTab"],
+  "permissions": [
+    "activeTab"
+  ],
   "manifest_version": 3,
   "web_accessible_resources": [
     {
-      "resources": ["*"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ]
 }

@@ -1,6 +1,8 @@
 export enum Action{
     TOGGLE_CLICKED,
-    __EMPTY__,
+    __NOOP__,
     WIDTH,
-    CLOSE
+    CLOSE,
+    HIDDEN,
+    SHOWN,
 }

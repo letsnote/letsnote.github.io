@@ -7,6 +7,7 @@ function entrypoint() {
   const shell = new ShellElement();
   document.body.appendChild(shell);
   shell.hide();
+  chrome.runtime.sendMessage({type: Action.HIDDEN});
 
   window.onmessage = (e) => {
     try {
@@ -16,14 +17,21 @@ function entrypoint() {
       }
       if (msg.type == Action.CLOSE) {
         shell.hide();
+        chrome.runtime.sendMessage({type: Action.HIDDEN});
       }
     } catch (e) { }
   };
 
   chrome.runtime.onMessage.addListener((message: Message) => {
     if (message.type == Action.TOGGLE_CLICKED) {
-      if (shell.isShown()) shell.hide();
-      else shell.show();
+      if (shell.isShown()) {
+        shell.hide();
+        chrome.runtime.sendMessage({type: Action.HIDDEN});
+      }
+      else {
+        shell.show();
+        chrome.runtime.sendMessage({type: Action.SHOWN});
+      }
     }
   });
 }

@@ -53,6 +53,7 @@ module.exports = {
     plugins: [
         new CopyWebpackPlugin({
             patterns: [
+                { from: 'resource', to: 'resource' },
                 { from: 'manifest.json' },
                 { from: 'node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js' },
                 { from: '../fast-ui/dist/fast-ui', to: 'fast-ui' },
