@@ -2,25 +2,28 @@
     <div class="h-box" (click)="onLinkClick()">
         <div class="left">
             <div>
-                <span>{{model.itemType === 0 ? 'Annotation' : 'Page Note'}}</span>
-                <span *ngIf="url !== undefined"><span> in </span>
-                    <a class="hostname" #anchor href="{{url.toString()}}" target="_blank">
-                        <i class="pi pi-globe"></i> {{url.hostname}}</a></span>
+                <span>{{model.itemType === 0 ? '주석' : '노트'}}</span>
+                <span *ngIf="model.urlWithoutMeta !== undefined"><span> in </span>
+                    <a class="hostname" #anchor href="{{model.urlWithoutMeta.toString()}}" target="_blank">
+                        <i class="pi pi-globe"></i> {{model.urlWithoutMeta.hostname}}</a></span>
             </div>
-            <div>
+            <div class="font-semibold">
                 {{model.document.title?.[0]}}
+            </div>
+            <div class="font-light">
+                {{model.textFragment}}
             </div>
         </div>
         <div class="right">
-            <img src="{{image}}">
+            <img src="{{model.favicon}}">
         </div>
     </div>
     <div class="spliter" *ngIf="(model.text && model.text.length > 0) || noteBoxMode === 0"></div>
-    <div class="note-box"  *ngIf="(model.text && model.text.length > 0) || noteBoxMode === 0" (dblclick)="onTryEdit()">
+    <div class="note-box" *ngIf="(model.text && model.text.length > 0) || noteBoxMode === 0" (dblclick)="onTryEdit()">
         <markdown *ngIf="noteBoxMode === 1" ngPreserveWhitespaces>
             {{model.text}}
         </markdown>
-        <textarea autofocus #textarea (blur)="onStopEditing()" *ngIf="noteBoxMode === 0" rows="5" pInputTextarea
+        <textarea #textarea (blur)="onStopEditing()" *ngIf="noteBoxMode === 0" rows="5" pInputTextarea
             [autoResize]="autoResize" [(ngModel)]="model.text"></textarea>
     </div>
 

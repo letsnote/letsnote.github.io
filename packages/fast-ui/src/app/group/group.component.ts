@@ -57,4 +57,5 @@ export class GroupComponent implements OnInit {
 
 export interface GroupModel extends _Types.GroupsResponse.RootObject {
   itemCount?: number;
+  disabled?: boolean
 };

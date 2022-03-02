@@ -13,9 +13,11 @@ export class ConfigService {
   private _fontSize: number = 14; //px
   private widthSubject = new ReplaySubject<number>(1);
   private fontSizeSubject = new ReplaySubject<number>(1);
+  private keySubject = new ReplaySubject<string>(1);
 
   set key(_key: string) {
     this._key = _key;
+    this.keySubject.next(_key);
     localStorage.setItem(this.keyName, _key);
   }
 
@@ -46,6 +48,7 @@ export class ConfigService {
   }
 
   fontSizeObservable = this.fontSizeSubject.asObservable();
+  keyObservable = this.keySubject.asObservable();
 
   constructor() {
     this.key = localStorage.getItem(this.keyName) ?? '';

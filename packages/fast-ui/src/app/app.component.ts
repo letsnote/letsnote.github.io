@@ -2,6 +2,7 @@
 
 import { AfterViewInit, Component, ElementRef, OnChanges, ViewChild } from '@angular/core';
 import { createGroup } from 'hypothesis-data';
+import { RealtimeService } from './external/realtime.service';
 import { ExtensionService } from './fragment/extension.service';
 import { GroupListModel } from './group-list/group-list.component';
 import { ConfigService } from './setting/config.service';
@@ -23,7 +24,6 @@ export class AppComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.config.fontSizeObservable.subscribe((pxSize) => {
       if (this.outerElementRef) {
-        let outer = (this.outerElementRef.nativeElement as HTMLDivElement);
         if (document.body.parentElement)
           document.body.parentElement.style.fontSize = `${pxSize}px`;
       }

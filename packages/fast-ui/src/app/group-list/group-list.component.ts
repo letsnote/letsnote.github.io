@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { GroupModel } from '../group/group.component';
 import * as api from 'hypothesis-data'
 import { Router } from '@angular/router';
@@ -7,61 +7,85 @@ import { MenuItem } from 'primeng/api';
 import { deleteGroup } from 'hypothesis-data';
 import { ConfirmationService } from 'primeng/api';
 import { ExtensionService } from '../fragment/extension.service';
+import { HeaderObserverService } from '../header/header-observer.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   templateUrl: './group-list.component.html',
   styleUrls: ['./group-list.component.scss', '../style/list.scss']
 })
-export class GroupListComponent implements OnInit {
+export class GroupListComponent implements OnInit, OnDestroy {
 
   model: GroupListModel = { groups: [] };
-  constructor(private config: ConfigService, private router: Router, private extensionService: ExtensionService) { }
-  cacheKey = "item_count_cache_key"
-
+  keyword: string = '';
+  subscriptions: Subscription[] = [];
+  constructor(private config: ConfigService, private router: Router, private extensionService: ExtensionService, private headerService: HeaderObserverService) {
+    this.keyword = this.headerService.searchInputControl.value; // TODO
+    let s = this.headerService.searchInputControl.valueChanges.subscribe((keyword) => {
+      this.keyword = keyword;
+      this.applyKeywordToGroupList();
+    });
+    this.subscriptions.push(s);
+  }
 
   ngOnInit(): void {
     this.loadGroups();
   }
 
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(s => s.unsubscribe());
+
+  }
+
+  private async getItemCount(groupModel: GroupModel) {
+    interface ItemCountObject {
+      itemCount: number;
+      date: Date;
+    }
+    let countCacheString = localStorage.getItem(groupModel.id);
+    if (countCacheString && Math.abs((new Date(JSON.parse(countCacheString).date).getTime() - Date.now()) / (1000 * 60)) > 30) {
+      countCacheString = null;
+    }
+    let itemCountObject: ItemCountObject | null = countCacheString ? JSON.parse(countCacheString) : null;
+    if (!itemCountObject) {
+      // Get the count of items from Hypothesis 
+      const annotations = await api.getAnnotations(this.config.key, groupModel.id, 0);
+      itemCountObject = { itemCount: annotations.total, date: new Date() };
+    }
+
+    localStorage.setItem(groupModel.id, JSON.stringify(itemCountObject));
+    return itemCountObject.itemCount;
+  }
+
   private async loadGroups() {
     const groups = await api.getGroups(this.config.key);
     this.model = { groups: groups.map(g => ({ ...g })) };
-
-    const cacheString = localStorage.getItem(this.cacheKey);
-    const cache = cacheString ? JSON.parse(cacheString) as ItemCountCache : null;
-    if (!cache || // Invalidate ten minutes later
-      30 < (Math.abs(new Date(cache.date).getTime() - Date.now()) / (1000 * 60))) {
-      for (let group of this.model.groups) {
-        await this.updateItemCount(group);
-      }
-      const itemCountCache: ItemCountCache = {
-        date: new Date()
-        , data: this.model.groups.reduce((p, c) => {
-          return { ...p, [c.id]: c.itemCount }
-        }, {})
-      };
-      localStorage.setItem(this.cacheKey, JSON.stringify(itemCountCache));
-    } else {
-      for (let group of this.model.groups) {
-        group.itemCount = cache?.data[group.id] ?? await this.updateItemCount(group);
-      }
+    for (let group of this.model.groups) {
+      group.itemCount = await this.getItemCount(group);
     }
+    this.applyKeywordToGroupList();
     this.onGroupListUpdate();
-  }
-
-  private async updateItemCount(groupModel: GroupModel) {
-    const annotations = await api.getAnnotations(this.config.key, groupModel.id, 0);
-    groupModel.itemCount = annotations.total;
-    return annotations.total;
   }
 
   onGroupClick(model: GroupModel) {
     this.router.navigate(['groups', model.id]);
   }
+
   async onGroupDeleteClick(model: GroupModel) {
     await deleteGroup(this.config.key, model.id);
     this.model.groups = this.model.groups.filter(m => m.id != model.id);
+    this.applyKeywordToGroupList();
     this.onGroupListUpdate();
+  }
+
+  private applyKeywordToGroupList() {
+    this.model.groups.forEach(g => {
+      if (g.name.toLocaleLowerCase().includes(this.keyword.toLocaleLowerCase())) {
+        g.disabled = false;
+      } else {
+        g.disabled = true;
+      }
+    });
   }
 
   onGroupListUpdate() {

@@ -42,7 +42,7 @@ export class ExtensionService {
       tab: chrome.tabs.Tab | undefined
     ) => {
       const currentUniqueWindowId = (window?.document as any).uniqueId;
-      console.debug("deregister: "+ lastUniqueWindowId, currentUniqueWindowId);
+      console.debug("deregister: " + lastUniqueWindowId, currentUniqueWindowId);
       if (lastUniqueWindowId != currentUniqueWindowId) {
         //TODO is it safe?
         chrome.contextMenus.onClicked.removeListener(listener);
@@ -57,7 +57,10 @@ export class ExtensionService {
   }
 
   async updateContextMenu(model: GroupListModel) {
+    console.debug('upate context menu');
     chrome.contextMenus.removeAll(() => {
+      console.debug('upate context menu after removeall');
+
       chrome.contextMenus.create({
         title: '그룹에 추가',
         contexts: ['all'],

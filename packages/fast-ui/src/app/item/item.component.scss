@@ -1,5 +1,9 @@
 // @import "bootstrap/scss/bootstrap";
 @import "../style/item.scss";
+
+:host{
+    @extend .mb-3;
+}
 .left{
     display: flex;
     flex-direction: column;
@@ -28,6 +32,7 @@
 .v-box{
     display: flex;
     flex-direction: column;
+    width: 100%;
 }
 .note-box{
     textarea{

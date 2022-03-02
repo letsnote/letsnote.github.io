@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -25,14 +26,16 @@ import { composeUrl } from '../fragment/fragment';
 export class ItemComponent implements OnInit, OnChanges {
   constructor(
     private hostElementRef: ElementRef,
-    private confirmationService: ConfirmationService
-  ) {}
+    private confirmationService: ConfirmationService,
+    private changeDetector: ChangeDetectorRef
+  ) { }
   noteBoxMode: NoteBoxMode = NoteBoxMode.View;
   autoResize = true;
+  // url: URL | undefined;
+  // image: string | undefined;
+  // textFragment: string | undefined;
   @Input()
   model: ItemModel | undefined;
-  url: URL | undefined;
-  image: string | undefined;
   @Output()
   itemClick = new EventEmitter();
   @Output('finishEditing')
@@ -44,16 +47,17 @@ export class ItemComponent implements OnInit, OnChanges {
   @ViewChild('anchor')
   anchorElement: ElementRef | undefined;
   async onLinkClick() {
-    if (this.url) {
+    if (this.model?.urlWithoutMeta) {
       this.itemClick.emit(this.model);
       this.anchorElement?.nativeElement.click();
     }
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
   onTryEdit() {
     this.noteBoxMode = NoteBoxMode.Edit;
+    this.changeDetector.detectChanges();
     setTimeout(() => {
       this.textarea?.nativeElement.focus();
     }, 100);
@@ -63,6 +67,7 @@ export class ItemComponent implements OnInit, OnChanges {
     this.finishEditingEmitter.emit(this.model);
     if (this.model) this.updateContextMenu(this.model);
     this.noteBoxMode = NoteBoxMode.View;
+    this.changeDetector.detectChanges();
   }
 
   baseContextMenuItems: MenuItem[] = [
@@ -91,23 +96,13 @@ export class ItemComponent implements OnInit, OnChanges {
         //reject action
       },
     });
+    this.changeDetector.detectChanges();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['model']) {
       const model = changes['model'].currentValue as ItemModel;
       this.updateContextMenu(model);
-      try {
-        let { directiveMap } = composeUrl(model.uri);
-        const metaString = directiveMap.get('meta');
-        if (metaString) {
-          const meta: { favicon: string } = JSON.parse(metaString);
-          this.image = meta.favicon;
-        }
-        this.url = new URL(model.uri);
-      } catch (e) {
-        // undefined or empty string or "EMPTY_SOURCE"
-      }
     }
   }
 
@@ -127,6 +122,10 @@ export class ItemComponent implements OnInit, OnChanges {
 
 export interface ItemModel extends _Types.AnnotationsResponse.Row {
   itemType: ItemType;
+  disabled?: boolean;
+  favicon?: string;
+  textFragment?: string;
+  urlWithoutMeta?: URL;
 }
 
 export enum ItemType {

@@ -3,11 +3,13 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import * as api from 'hypothesis-data';
 import { createAnnotations, getProfile } from 'hypothesis-data';
 import { MenuItem } from 'primeng/api';
+import { Subscription } from 'rxjs';
 import { TextFragment } from 'text-fragments-polyfill/dist/fragment-generation-utils';
 import { ExtensionService } from '../fragment/extension.service';
 import { composeUrl } from '../fragment/fragment';
 import { GroupModel } from '../group/group.component';
 import { ConfigService } from '../setting/config.service';
+import { HeaderObserverService } from './header-observer.service';
 
 @Component({
   selector: 'header',
@@ -28,8 +30,11 @@ export class HeaderComponent implements OnInit {
   ];
   group: GroupModel | undefined;
   currentRoute: CurrentRoute = CurrentRoute.Home;
+  lastGroupSearchKeyword: string = '';
+  noteSearchSubscription: Subscription | undefined;
+  groupSearchSubscription: Subscription | undefined;
 
-  constructor(public config: ConfigService, private router: Router, private extensionService: ExtensionService) {
+  constructor(public config: ConfigService, private router: Router, private extensionService: ExtensionService, public observer: HeaderObserverService) {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         this.group = undefined;
@@ -39,28 +44,16 @@ export class HeaderComponent implements OnInit {
           api.getGroups(config.key).then((groups) => {
             this.group = groups.find((g) => g.id === groupId);
             this.breadcrumbItems = [
-              ...this.baseBreadcrumbItems,
-              {
+              ...this.baseBreadcrumbItems, {
                 label: `${this.group?.name}`,
-                command: (event) => {
-                  // if (event?.originalEvent?.target) {
-                  //   const span = event.originalEvent.target as HTMLSpanElement;
-                  //   span.contentEditable = 'true';
-                  //   span.style.padding = '0.25em 0.5em 0.25em 0.5em';
-                  //   span.focus();
-                  //   span.onblur = () => {
-                  //     span.style.padding = '';
-                  //     span.contentEditable = 'false';
-                  //     api.updateGroup(this.config.key, groupId, {
-                  //       name: span.innerText,
-                  //     })
-                  //     // TODO: update group name on the remote.
-                  //   };
-                  // }
-                },
+                command: () => {
+                  const child = window.open(`https://hypothes.is/groups/${this.group?.id}/edit`);
+                  //TODO
+                }
               },
             ];
           });
+          this.observer.searchInputControl.setValue(''); //TODO
         } else if (event.urlAfterRedirects.includes('setting')) {
           this.currentRoute = CurrentRoute.Setting;
           this.breadcrumbItems = [
@@ -70,11 +63,17 @@ export class HeaderComponent implements OnInit {
         } else {
           this.currentRoute = CurrentRoute.Home;
           this.breadcrumbItems = [...this.baseBreadcrumbItems];
+          this.observer.searchInputControl.setValue(this.lastGroupSearchKeyword);
         }
       }
     });
 
-    extensionService.requestFromContextMenu.subscribe(({groupId}) => {
+    this.observer.searchInputControl.valueChanges.subscribe((value) => {
+      if (this.currentRoute === CurrentRoute.Home)
+        this.lastGroupSearchKeyword = value;
+    });
+
+    extensionService.requestFromContextMenu.subscribe(({ groupId }) => {
       this.onNewNote(groupId);
     })
   }
@@ -108,6 +107,10 @@ export class HeaderComponent implements OnInit {
     }
   }
 
+  /**
+   * TODO: It should not be here
+   * @param groupId 
+   */
   async onNewNote(groupId?: string) {
     const profile = await getProfile(this.config.key);
     const group = groupId ?? this.group?.id as string;
@@ -120,11 +123,11 @@ export class HeaderComponent implements OnInit {
         const favicon = tab.favIconUrl;
         const fragment = await new Promise<
           | {
-              fullUrl: string;
-              fragment: TextFragment;
-              textDirectiveParameters: string;
-              selectedText: string;
-            }
+            fullUrl: string;
+            fragment: TextFragment;
+            textDirectiveParameters: string;
+            selectedText: string;
+          }
           | undefined
         >((resolve) => {
           chrome.tabs.sendMessage(tabId, { type: 1 }, (res) => {
@@ -133,22 +136,18 @@ export class HeaderComponent implements OnInit {
         });
         let meta = {};
         if (favicon) meta = { ...meta, favicon };
+        if (fragment?.selectedText) meta = { ...meta, selectedText: fragment.selectedText };
         const newUrl = composeUrl(url, {
           metaDirectiveParameter: JSON.stringify(meta),
           textDirectiveParameter: fragment?.textDirectiveParameters,
         });
-        // if (uri.includes('#')) {
-        //   uriWithMeta = `${uri}:~:meta=${JSON.stringify(meta)}`;
-        // } else {
-        //   uriWithMeta = `${uri}#:~:meta=${JSON.stringify(meta)}`;
-        // }
-        createAnnotations(this.config.key, {
+        const row = await createAnnotations(this.config.key, {
           group,
           tags: [],
           text: '',
           user: profile.userid,
           document: { title: [title] },
-          uri: newUrl.url.toString(),
+          uri: newUrl?.url.toString() ?? url,
           target: [],
           references: [],
           permissions: {
@@ -157,6 +156,7 @@ export class HeaderComponent implements OnInit {
             delete: [profile.userid],
           },
         });
+        this.observer.pushNewNote(row);
       }
     });
   }

@@ -51,8 +51,12 @@ function entrypoint() {
       }
     }
   );
+
 }
 
-entrypoint();
+window.addEventListener ("load", delayedEntryPoint, false);
+function delayedEntryPoint(){
+  setTimeout(() => entrypoint());
+}
 
 export const extensionId = chrome.i18n.getMessage("@@extension_id");
