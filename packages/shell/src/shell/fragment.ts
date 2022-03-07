@@ -1,7 +1,7 @@
 import { generateFragment, TextFragment } from 'text-fragments-polyfill/dist/fragment-generation-utils'; 
 //TODO: fix the exports field in packages\shell\node_modules\text-fragments-polyfill\package.json
 
-export function getUrlWithTextFragment(): {fullUrl: string, fragment: TextFragment, textDirectiveParameters: string, selectedText: string} | undefined {
+export function getUrlWithTextFragment(): {fullUrl: string, fragment: TextFragment, textDirectiveParameters: string, selectedText: string} | {selectedText: string} | undefined {
     const selection = window.getSelection();
     if (selection && selection.toString() != '') {
         const result = generateFragment(selection);
@@ -21,7 +21,8 @@ export function getUrlWithTextFragment(): {fullUrl: string, fragment: TextFragme
             url += `#:~:text=${prefix}${textStart}${textEnd}${suffix}`;
             console.log(url);
             return {fullUrl: url, fragment: result.fragment, textDirectiveParameters: `${prefix}${textStart}${textEnd}${suffix}`, selectedText: selection.toString()};
-        }
+        }else
+            return {selectedText: selection.toString()};
     }
 }
 export function composeUrl(urlString: string, newDirectiveParameters?: { metaDirectiveParameter?: string, textDirectiveParameter?: string }) {

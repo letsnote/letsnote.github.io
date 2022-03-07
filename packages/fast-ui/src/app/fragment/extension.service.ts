@@ -29,25 +29,29 @@ export class ExtensionService {
 
   private async addExtensionListener() {
     const queryOptions = { active: true, currentWindow: true };
-    const currentTab = (await chrome.tabs.query(queryOptions))[0];
-    if (!currentTab.id) {
-      console.warn('There is no active tab on top of the iframe.');
-      return;
-    }
-    const tabIdSnapshot = currentTab.id;
+    // const currentTab = (await chrome.tabs.getCurrent());
+    // if (!currentTab.id) {
+    //   console.warn('There is no active tab on top of the iframe.');
+    //   return;
+    // }
+    // const tabIdSnapshot = currentTab.id;
     const lastUniqueWindowId = (window.document as any).uniqueId;
     //TODO remove duplicate listeners
-    const listener = (
+    const listener = async (
       data: chrome.contextMenus.OnClickData,
       tab: chrome.tabs.Tab | undefined
     ) => {
+
+      const currentTab = (await chrome.tabs.getCurrent());
       const currentUniqueWindowId = (window?.document as any).uniqueId;
-      console.debug("deregister: " + lastUniqueWindowId, currentUniqueWindowId);
       if (lastUniqueWindowId != currentUniqueWindowId) {
         //TODO is it safe?
+        console.debug("deregister: " + lastUniqueWindowId, currentUniqueWindowId);
         chrome.contextMenus.onClicked.removeListener(listener);
       } else {
-        if (tab?.id === tabIdSnapshot) { // check whether they equal?
+        console.debug("check tab ids: " + tab?.id, currentTab.id);
+
+        if (tab?.id === currentTab.id) { //TODO check whether they equal?
           const groupId = `${data.menuItemId}`;
           this._requestFromContextMenu.next({ groupId });
         }
@@ -76,6 +80,7 @@ export class ExtensionService {
       });
     });
   }
+
   sendMessageToParent(msg: { type: number; id?: number; data?: any }) {
     window?.top?.postMessage(JSON.stringify(msg), '*');
   }

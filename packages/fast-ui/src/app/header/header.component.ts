@@ -38,9 +38,10 @@ export class HeaderComponent implements OnInit {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         this.group = undefined;
-        if (event.urlAfterRedirects.includes('groups')) {
+        const urlWithoutHashFragment = event.urlAfterRedirects.split('#')[0];
+        if (urlWithoutHashFragment.includes('groups')) {
           this.currentRoute = CurrentRoute.Group;
-          const groupId = event.urlAfterRedirects.split('/')[2];
+          const groupId = urlWithoutHashFragment.split('/')[2];
           api.getGroups(config.key).then((groups) => {
             this.group = groups.find((g) => g.id === groupId);
             this.breadcrumbItems = [
@@ -54,7 +55,7 @@ export class HeaderComponent implements OnInit {
             ];
           });
           this.observer.searchInputControl.setValue(''); //TODO
-        } else if (event.urlAfterRedirects.includes('setting')) {
+        } else if (urlWithoutHashFragment.includes('setting')) {
           this.currentRoute = CurrentRoute.Setting;
           this.breadcrumbItems = [
             ...this.baseBreadcrumbItems,

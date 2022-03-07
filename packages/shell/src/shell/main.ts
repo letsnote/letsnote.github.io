@@ -37,31 +37,40 @@ function entrypoint() {
 
   chrome.runtime.onMessage.addListener(
     (message: Message, sender, sendResponse) => {
-      if (message.type == Action.TOGGLE_CLICKED) {
-        if (shell.isShown()) {
-          shell.hide();
-          chrome.runtime.sendMessage({ type: Action.HIDDEN });
-        } else {
+      if (message.type == Action.BACKGROUND_READY) {
+        console.debug(`The extension of Thesis Note is ready.`)
+        iframeReady = true;
+      }
+      if (iframeReady) {
+        if (message.type == Action.TOGGLE_CLICKED) {
+          if (shell.isShown()) {
+            shell.hide();
+            chrome.runtime.sendMessage({ type: Action.HIDDEN });
+          } else {
+            shell.show();
+            chrome.runtime.sendMessage({ type: Action.SHOWN });
+          }
+        } else if (message.type == Action.REQUEST_FRAGMENT) {
+          const urlWithTextFragment = getUrlWithTextFragment();
+          sendResponse(urlWithTextFragment);
+        }
+        else if (message.type == Action.NAVIGATE) {
+          // Chrome Navagation API doesn't work with TextFragment.
+          // But the anchor element works well.
+          const url = (message as any).data;
+          const a = document.createElement('a');
+          a.href = `${url}`;
+          a.click();
+          a.remove();
+        } else if (message.type == Action.SHOW) {
           shell.show();
           chrome.runtime.sendMessage({ type: Action.SHOWN });
         }
-      } else if (message.type == Action.REQUEST_FRAGMENT) {
-        const urlWithTextFragment = getUrlWithTextFragment();
-        sendResponse(urlWithTextFragment);
-      } else if (message.type == Action.NAVIGATE) {
-        // Chrome Navagation API doesn't work with TextFragment.
-        // But the anchor element works well.
-        const url = (message as any).data;
-        const a = document.createElement('a');
-        a.href = `${url}`;
-        a.click();
-        a.remove();
       }
     }
   );
-
 }
-
+let iframeReady = false;
 window.addEventListener("load", delayedEntryPoint, false);
 function delayedEntryPoint() {
   setTimeout(() => entrypoint());

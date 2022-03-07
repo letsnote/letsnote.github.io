@@ -1,2 +1,4 @@
+<ng-container *ngIf="enabled">
 <group *ngFor="let i of model?.groups" [model]="i" (groupClick)="onGroupClick($event)"
     (groupDeleteClick)="onGroupDeleteClick($event)" [ngStyle]="{'display': i.disabled ? 'none' : 'inherit'}"></group>
+</ng-container>

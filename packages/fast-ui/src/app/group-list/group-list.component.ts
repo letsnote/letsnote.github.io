@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { GroupModel } from '../group/group.component';
 import * as api from 'hypothesis-data'
 import { Router } from '@angular/router';
@@ -9,6 +9,7 @@ import { ConfirmationService } from 'primeng/api';
 import { ExtensionService } from '../fragment/extension.service';
 import { HeaderObserverService } from '../header/header-observer.service';
 import { Subscription } from 'rxjs';
+import { AppService } from '../app.service';
 
 @Component({
   templateUrl: './group-list.component.html',
@@ -18,8 +19,11 @@ export class GroupListComponent implements OnInit, OnDestroy {
 
   model: GroupListModel = { groups: [] };
   keyword: string = '';
+  enabled = false;
   subscriptions: Subscription[] = [];
-  constructor(private config: ConfigService, private router: Router, private extensionService: ExtensionService, private headerService: HeaderObserverService) {
+  constructor(private config: ConfigService, private router: Router, private extensionService: ExtensionService, private headerService: HeaderObserverService
+    , private appService: AppService
+    ,private changeDetectRef: ChangeDetectorRef) {
     this.keyword = this.headerService.searchInputControl.value; // TODO
     let s = this.headerService.searchInputControl.valueChanges.subscribe((keyword) => {
       this.keyword = keyword;
@@ -28,13 +32,18 @@ export class GroupListComponent implements OnInit, OnDestroy {
     this.subscriptions.push(s);
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.loadGroups();
+    //A ngOnInit method that is invoked immediately after the default change detector has checked the directive's data-bound properties for the first time
+    let s2 = this.appService.onChangeComponentRendering.subscribe((enabled) => {
+      this.enabled = enabled;
+      this.changeDetectRef.detectChanges();
+    })
+    this.subscriptions.push(s2);
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(s => s.unsubscribe());
-
   }
 
   private async getItemCount(groupModel: GroupModel) {
@@ -65,6 +74,7 @@ export class GroupListComponent implements OnInit, OnDestroy {
     }
     this.applyKeywordToGroupList();
     this.onGroupListUpdate();
+    this.changeDetectRef.detectChanges();
   }
 
   onGroupClick(model: GroupModel) {

@@ -6,5 +6,9 @@ export enum Action{
     HIDDEN,
     SHOWN,
     RESPONSE_FRAGMENT,
-    NAVIGATE
+    NAVIGATE,
+    SHOW,
+    // REQUEST_ALREADY_SHOWN,
+    // RESPONSE_ALREADY_SHOWN,
+    BACKGROUND_READY
 }

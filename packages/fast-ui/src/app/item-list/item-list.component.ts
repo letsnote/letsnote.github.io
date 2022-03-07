@@ -1,10 +1,11 @@
-import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { deleteAnnotation, getAnnotations, updateAnnotation } from 'hypothesis-data';
 import { Subscription } from 'rxjs';
+import { AppService } from '../app.service';
 import { composeUrl } from '../fragment/fragment';
 import { HeaderObserverService } from '../header/header-observer.service';
-import { ItemModel, ItemType } from '../item/item.component';
+import { ItemComponent, ItemModel, ItemType } from '../item/item.component';
 import { ConfigService } from '../setting/config.service';
 
 @Component({
@@ -17,9 +18,11 @@ export class ItemListComponent implements OnInit, OnDestroy {
 
   keyword: string = '';
   private subscriptions: Subscription[] = [];
+  @ViewChildren('item')
+  public listItems!: QueryList<ItemComponent>
 
-  constructor(private hostElement: ElementRef, private config: ConfigService, route: ActivatedRoute, private headerObserver: HeaderObserverService, private changeDetectorRef: ChangeDetectorRef
-    , private headerService: HeaderObserverService) {
+  constructor(private hostElement: ElementRef, private config: ConfigService, private route: ActivatedRoute, private headerObserver: HeaderObserverService, private changeDetectorRef: ChangeDetectorRef
+    , private headerService: HeaderObserverService, private appService: AppService) {
     let s = route.params.subscribe((param) => {
       this.groupId = param['groupId'];
       this.loadItemList();
@@ -60,10 +63,12 @@ export class ItemListComponent implements OnInit, OnDestroy {
     if (model.urlWithoutMeta) {
       const currentTab = await chrome.tabs.getCurrent();
       let tab: chrome.tabs.Tab;
-      if (event.ctrlKey)
+      if (event.ctrlKey) {
         tab = await chrome.tabs.create({ index: currentTab.index + 1, url: model.urlWithoutMeta.toString(), active: true });
-      else if (currentTab.id) {
-        chrome.tabs.sendMessage(currentTab.id, { type: 7, data: model.urlWithoutMeta.toString() });
+        tab.id && this.appService.setInitialRoutesAfterNavigation(tab.id, this.route.snapshot.url.map(seg => seg.path), model.id);
+      } else {
+        currentTab.id && chrome.tabs.sendMessage(currentTab.id, { type: 7, data: model.urlWithoutMeta.toString() });
+        currentTab.id && this.appService.setInitialRoutesAfterNavigation(currentTab.id, this.route.snapshot.url.map(seg => seg.path), model.id);
       }
     }
   }
@@ -78,6 +83,7 @@ export class ItemListComponent implements OnInit, OnDestroy {
       })
       this.model = response;
       this.applyKeywordToNoteList();
+      this.route.snapshot.fragment && setTimeout(() => this.navigateToItem(this.route.snapshot.fragment), 100);
     }
   }
 
@@ -110,6 +116,13 @@ export class ItemListComponent implements OnInit, OnDestroy {
         r.disabled = true;
       }
     });
+  }
+
+  private navigateToItem(id: string | null) {
+    if (id) {
+      const item = this.listItems.find(e => e.model?.id == id);
+      item?.focus();
+    }
   }
 
   //TODO

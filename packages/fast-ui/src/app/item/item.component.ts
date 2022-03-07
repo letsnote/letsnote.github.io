@@ -92,6 +92,10 @@ export class ItemComponent implements OnInit, OnChanges {
     this.changeDetector.detectChanges();
   }
 
+  focus(){
+    this.hostElementRef.nativeElement?.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['model']) {
       const model = changes['model'].currentValue as ItemModel;

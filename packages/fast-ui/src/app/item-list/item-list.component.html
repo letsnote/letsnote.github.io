@@ -1,3 +1,5 @@
-<item *ngFor="let i of model?.rows" [model]="i" (finishEditing)="onFinishEditing($event)"
-    (itemDeleteClick)="onItemDeleteClick($event)" [ngStyle]="{'display': i.disabled ? 'none' : 'inherit'}"
-    (itemClick)="onItemClick($event)"></item>
+<ng-container>
+    <item *ngFor="let i of model?.rows" [model]="i" (finishEditing)="onFinishEditing($event)" #item
+        (itemDeleteClick)="onItemDeleteClick($event)" [ngStyle]="{'display': i.disabled ? 'none' : 'inherit'}"
+        (itemClick)="onItemClick($event)"></item>
+</ng-container>
