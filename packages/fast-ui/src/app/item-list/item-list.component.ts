@@ -56,6 +56,18 @@ export class ItemListComponent implements OnInit, OnDestroy {
     }
   }
 
+  async onItemClick({ model, event }: { model: ItemModel, event: MouseEvent }) {
+    if (model.urlWithoutMeta) {
+      const currentTab = await chrome.tabs.getCurrent();
+      let tab: chrome.tabs.Tab;
+      if (event.ctrlKey)
+        tab = await chrome.tabs.create({ index: currentTab.index + 1, url: model.urlWithoutMeta.toString(), active: true });
+      else if (currentTab.id) {
+        chrome.tabs.sendMessage(currentTab.id, { type: 7, data: model.urlWithoutMeta.toString() });
+      }
+    }
+  }
+
   private async loadItemList() {
     if (this.groupId) {
       let response = await getAnnotations(this.config.key, this.groupId) as ItemListModel;
@@ -116,7 +128,7 @@ export class ItemListComponent implements OnInit, OnDestroy {
         console.debug(e);
       }
     }
-    
+
     // Remove the meta directive
     let urlResultWithoutMeta = composeUrl(itemModel.uri, { metaDirectiveParameter: '' });
     itemModel.urlWithoutMeta = urlResultWithoutMeta?.url;

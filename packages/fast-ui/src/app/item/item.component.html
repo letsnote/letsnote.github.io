@@ -1,11 +1,11 @@
 <div class="v-box" *ngIf="model" #box>
-    <div class="h-box" (click)="onLinkClick()">
+    <a class="h-box" (click)="onLinkClick($event)" href="{{model?.urlWithoutMeta?.toString() ?? ''}}">
         <div class="left">
             <div>
                 <span>{{model.itemType === 0 ? '주석' : '노트'}}</span>
                 <span *ngIf="model.urlWithoutMeta !== undefined"><span> in </span>
-                    <a class="hostname" #anchor href="{{model.urlWithoutMeta.toString()}}" target="_blank">
-                        <i class="pi pi-globe"></i> {{model.urlWithoutMeta.hostname}}</a></span>
+                    <span class="hostname">
+                        <i class="pi pi-globe"></i> {{model.urlWithoutMeta.hostname}}</span></span>
             </div>
             <div class="font-semibold">
                 {{model.document.title?.[0]}}
@@ -17,7 +17,7 @@
         <div class="right">
             <img src="{{model.favicon}}">
         </div>
-    </div>
+    </a>
     <div class="spliter" *ngIf="(model.text && model.text.length > 0) || noteBoxMode === 0"></div>
     <div class="note-box" *ngIf="(model.text && model.text.length > 0) || noteBoxMode === 0" (dblclick)="onTryEdit()">
         <markdown *ngIf="noteBoxMode === 1" ngPreserveWhitespaces>

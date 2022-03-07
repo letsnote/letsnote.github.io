@@ -32,7 +32,7 @@ function entrypoint() {
             );
         })();
       }
-    } catch (e) {}
+    } catch (e) { }
   };
 
   chrome.runtime.onMessage.addListener(
@@ -48,14 +48,22 @@ function entrypoint() {
       } else if (message.type == Action.REQUEST_FRAGMENT) {
         const urlWithTextFragment = getUrlWithTextFragment();
         sendResponse(urlWithTextFragment);
+      } else if (message.type == Action.NAVIGATE) {
+        // Chrome Navagation API doesn't work with TextFragment.
+        // But the anchor element works well.
+        const url = (message as any).data;
+        const a = document.createElement('a');
+        a.href = `${url}`;
+        a.click();
+        a.remove();
       }
     }
   );
 
 }
 
-window.addEventListener ("load", delayedEntryPoint, false);
-function delayedEntryPoint(){
+window.addEventListener("load", delayedEntryPoint, false);
+function delayedEntryPoint() {
   setTimeout(() => entrypoint());
 }
 

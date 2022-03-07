@@ -4,7 +4,6 @@ import {
   Component,
   ElementRef,
   EventEmitter,
-  HostListener,
   Input,
   OnChanges,
   OnInit,
@@ -12,9 +11,7 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
-import { updateAnnotation } from 'hypothesis-data';
 import { ConfirmationService, MenuItem } from 'primeng/api';
-import { composeUrl } from '../fragment/fragment';
 
 @Component({
   selector: 'item',
@@ -31,25 +28,21 @@ export class ItemComponent implements OnInit, OnChanges {
   ) { }
   noteBoxMode: NoteBoxMode = NoteBoxMode.View;
   autoResize = true;
-  // url: URL | undefined;
-  // image: string | undefined;
-  // textFragment: string | undefined;
   @Input()
   model: ItemModel | undefined;
   @Output()
-  itemClick = new EventEmitter();
+  itemClick = new EventEmitter<{event: MouseEvent, model: ItemModel}>();
   @Output('finishEditing')
   finishEditingEmitter = new EventEmitter();
   @ViewChild('textarea')
   textarea: ElementRef | undefined;
   @Output('itemDeleteClick')
   itemDeleteEmitter = new EventEmitter();
-  @ViewChild('anchor')
-  anchorElement: ElementRef | undefined;
-  async onLinkClick() {
-    if (this.model?.urlWithoutMeta) {
-      this.itemClick.emit(this.model);
-      this.anchorElement?.nativeElement.click();
+
+  async onLinkClick(click: MouseEvent) {
+    click.preventDefault();
+    if (this.model) {
+      this.itemClick.emit({model: this.model, event: click});
     }
   }
 

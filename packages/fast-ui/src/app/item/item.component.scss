@@ -28,6 +28,8 @@
     flex-direction: row;
     @extend .pb-2;
     cursor: pointer;
+    text-decoration: unset;
+    color: unset;
 }
 .v-box{
     display: flex;

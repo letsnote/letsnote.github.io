@@ -5,5 +5,6 @@ export enum Action{
     CLOSE,
     HIDDEN,
     SHOWN,
-    RESPONSE_FRAGMENT
+    RESPONSE_FRAGMENT,
+    NAVIGATE
 }
