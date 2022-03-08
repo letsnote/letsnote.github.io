@@ -19,19 +19,19 @@ function entrypoint() {
         shell.hide();
         chrome.runtime.sendMessage({ type: Action.HIDDEN });
       }
-      if (msg.type == Action.REQUEST_FRAGMENT) {
-        (async () => {
-          const urlWithTextFragment = getUrlWithTextFragment();
-          if (urlWithTextFragment)
-            shell.sendMessage(
-              JSON.stringify({
-                type: Action.RESPONSE_FRAGMENT,
-                id: (msg as any).id,
-                data: urlWithTextFragment,
-              })
-            );
-        })();
-      }
+      // if (msg.type == Action.REQUEST_FRAGMENT) {
+      //   (async () => {
+      //     const urlWithTextFragment = getUrlWithTextFragment();
+      //     if (urlWithTextFragment)
+      //       shell.sendMessage(
+      //         JSON.stringify({
+      //           type: Action.RESPONSE_FRAGMENT,
+      //           id: (msg as any).id,
+      //           data: urlWithTextFragment,
+      //         })
+      //       );
+      //   })();
+      // }
     } catch (e) { }
   };
 
@@ -40,8 +40,8 @@ function entrypoint() {
       if (message.type == Action.BACKGROUND_READY) {
         console.debug(`The extension of Thesis Note is ready.`)
         iframeReady = true;
-      }
-      if (iframeReady) {
+        sendResponse({});
+      } else if (iframeReady) {
         if (message.type == Action.TOGGLE_CLICKED) {
           if (shell.isShown()) {
             shell.hide();
@@ -50,11 +50,11 @@ function entrypoint() {
             shell.show();
             chrome.runtime.sendMessage({ type: Action.SHOWN });
           }
+          sendResponse({});
         } else if (message.type == Action.REQUEST_FRAGMENT) {
           const urlWithTextFragment = getUrlWithTextFragment();
           sendResponse(urlWithTextFragment);
-        }
-        else if (message.type == Action.NAVIGATE) {
+        } else if (message.type == Action.NAVIGATE) {
           // Chrome Navagation API doesn't work with TextFragment.
           // But the anchor element works well.
           const url = (message as any).data;
@@ -62,11 +62,14 @@ function entrypoint() {
           a.href = `${url}`;
           a.click();
           a.remove();
+          sendResponse({});
         } else if (message.type == Action.SHOW) {
           shell.show();
           chrome.runtime.sendMessage({ type: Action.SHOWN });
+          sendResponse({});
         }
-      }
+      } else 
+        sendResponse({});
     }
   );
 }

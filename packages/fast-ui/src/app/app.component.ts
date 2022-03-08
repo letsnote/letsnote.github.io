@@ -16,17 +16,11 @@ import { ConfigService } from './setting/config.service';
 export class AppComponent implements AfterViewInit {
   title = 'fast-ui';
   got = 'aaa';
-  // tabId?: string;
   @ViewChild("outer")
   outerElementRef: ElementRef | undefined;
 
   constructor(private config: ConfigService, private extension: ExtensionService, private router: Router, private appService: AppService, private route: ActivatedRoute
     , private ngZone: NgZone) {
-    // this.route.queryParams.subscribe((param) => {
-    //   console.debug(param);
-    //   this.tabId = param['tab_id'];
-    // })
-
   }
 
   async ngAfterViewInit() {
@@ -43,21 +37,22 @@ export class AppComponent implements AfterViewInit {
       this.extension.sendMessageToParent(msg);
     });
 
-    if (currentTab.id) {
-      chrome.runtime.onMessage.addListener((msg, sender) => {
-        this.ngZone.run(async() => { // allows you to reenter Angular zone from a task that was executed outside of the Angular zone
-          const activeTab = (await chrome.tabs.query({ active: true }))[0];
-          if (activeTab?.id === currentTab.id) {
-            if (msg.type === 5) // SHOWN
-              this.appService.enableComponentRendering();
-            else if (msg.type === 4)
-              this.appService.disableComponentRendering();
+    chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+      this.ngZone.run(async () => { // allows you to reenter Angular zone from a task that was executed outside of the Angular zone
+        if (sender.tab?.id === currentTab.id) {
+          if (msg.type === 5){ // SHOWN
+            this.appService.enableComponentRendering();
+            sendResponse();
+          }else if (msg.type === 4){
+            this.appService.disableComponentRendering();
+            sendResponse();
           }
-        })
+        }
       });
-    }
-    this.initializeRoutes();
+    });
+    
     currentTab.id && chrome.tabs.sendMessage(currentTab.id, { type: 9 });
+    this.initializeRoutes();
   }
 
   async initializeRoutes() {
