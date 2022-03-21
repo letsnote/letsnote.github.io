@@ -1,6 +1,6 @@
 {
   "name": "Thesis Note",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "An extension provides user interface like Edge Collection and the database backend with Hypothesis API.",
   "content_scripts": [
     {
