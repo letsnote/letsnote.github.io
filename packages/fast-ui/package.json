@@ -19,7 +19,7 @@
     "@angular/platform-browser-dynamic": "~13.2.0",
     "@angular/router": "~13.2.0",
     "@types/superagent": "^4.1.15",
-    "hypothesis-data": "file:../../../collection-tojson/packages/hypothesis-api/hypothesis-data-0.0.2.tgz",
+    "hypothesis-data": "file:../../../collection-tojson/packages/hypothesis-api/hypothesis-data-0.0.3.tgz",
     "ngx-markdown": "^13.1.0",
     "primeflex": "^3.1.3",
     "primeicons": "^5.0.0",

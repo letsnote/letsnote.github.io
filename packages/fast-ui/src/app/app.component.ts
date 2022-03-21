@@ -60,7 +60,7 @@ export class AppComponent implements AfterViewInit {
     if (tab.id) {
       const routesAndFragment = this.appService.getAndRemoveInitialRoutes(tab.id)
       if (routesAndFragment) {
-        await this.router.navigate(routesAndFragment.routes, routesAndFragment.fragment ? { fragment: routesAndFragment.fragment } : undefined);
+        await this.router.navigate(routesAndFragment.routes, {queryParams: {listLength: routesAndFragment.listLength, fragment: routesAndFragment.fragment}});
         chrome.tabs.sendMessage(tab.id, { type: 8 });
       }
     }

@@ -22,6 +22,7 @@ import {ContextMenuModule} from 'primeng/contextmenu';
 import {SliderModule} from 'primeng/slider';
 import {ConfirmPopupModule} from 'primeng/confirmpopup';
 import {InputNumberModule} from 'primeng/inputnumber';
+import {SkeletonModule} from 'primeng/skeleton';
 @NgModule({
   declarations: [
     AppComponent,
@@ -48,6 +49,7 @@ import {InputNumberModule} from 'primeng/inputnumber';
     ConfirmPopupModule,
     SliderModule,
     InputNumberModule,
+    SkeletonModule,
     MarkdownModule.forRoot({ loader: HttpClient }),
   ],
   providers: [],

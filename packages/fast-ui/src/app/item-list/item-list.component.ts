@@ -1,12 +1,14 @@
 import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { deleteAnnotation, getAnnotations, updateAnnotation } from 'hypothesis-data';
-import { Subscription } from 'rxjs';
+import { debounceTime, Subject, Subscription } from 'rxjs';
 import { AppService } from '../app.service';
 import { composeUrl } from '../fragment/fragment';
 import { HeaderObserverService } from '../header/header-observer.service';
-import { ItemComponent, ItemModel, ItemType } from '../item/item.component';
+import { ItemComponent, ItemModel, ItemType, updateSomeProperties } from '../item/item.component';
 import { ConfigService } from '../setting/config.service';
+import { AnnotationFetchService } from './annotation-fetch.service';
+import { ItemListModel } from './item-list-model';
 
 @Component({
   templateUrl: './item-list.component.html',
@@ -14,17 +16,21 @@ import { ConfigService } from '../setting/config.service';
 })
 export class ItemListComponent implements OnInit, OnDestroy {
   model: ItemListModel | undefined;
-  groupId: string | undefined;
+  groupId!: string;
 
   keyword: string = '';
   private subscriptions: Subscription[] = [];
   @ViewChildren('item')
   public listItems!: QueryList<ItemComponent>
-
+  @ViewChildren('skeleton')
+  skeletons!: QueryList<ElementRef<HTMLDivElement>>;
+  annotationFetchService!: AnnotationFetchService;
+  private scrollSubject = new Subject<void>();
   constructor(private hostElement: ElementRef, private config: ConfigService, private route: ActivatedRoute, private headerObserver: HeaderObserverService, private changeDetectorRef: ChangeDetectorRef
     , private headerService: HeaderObserverService, private appService: AppService) {
     let s = route.params.subscribe((param) => {
       this.groupId = param['groupId'];
+      this.annotationFetchService = new AnnotationFetchService(this.config.key, this.groupId);
       this.loadItemList();
     })
     let s2 = this.headerObserver.newNoteObserverble.subscribe((row) => {
@@ -36,7 +42,13 @@ export class ItemListComponent implements OnInit, OnDestroy {
       this.keyword = keyword;
       this.applyKeywordToNoteList();
     });
-    this.subscriptions.push(s, s2, s3);
+    this.hostElement.nativeElement.onscroll = () => {
+      this.scrollSubject.next();
+    };
+    let s4 = this.scrollSubject.pipe(debounceTime(100)).subscribe(() => {
+      this.onScroll();
+    })
+    this.subscriptions.push(s, s2, s3, s4);
   }
 
   ngOnInit(): void {
@@ -47,6 +59,21 @@ export class ItemListComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach(s => s.unsubscribe());
   }
 
+  private async onScroll() {
+    let candidates = this.skeletons.filter((item, i, arr) => {
+      const rect: DOMRect = item.nativeElement.getBoundingClientRect();
+      if (window.innerHeight > rect.bottom) {
+        return true;
+      }
+      return false;
+    });
+    if (candidates.length != 0) {
+      const preLoad = 10;
+      let length = ((this.model?.rows.length ?? 0) + candidates.length + preLoad);
+      this.updateModel(length);
+    }
+  }
+
   onFinishEditing(model: ItemModel) {
     updateAnnotation(this.config.key, model.id, { text: model.text });
   }
@@ -55,6 +82,7 @@ export class ItemListComponent implements OnInit, OnDestroy {
     if (this.model) {
       await deleteAnnotation(this.config.key, itemModel.id);
       this.model = { ...this.model, rows: this.model?.rows.filter((m) => m.id != itemModel.id) };
+      this.model.total--;
       this.changeDetectorRef.detectChanges(); // TODO: is it right?
     }
   }
@@ -65,34 +93,34 @@ export class ItemListComponent implements OnInit, OnDestroy {
       let tab: chrome.tabs.Tab;
       if (event.ctrlKey) {
         tab = await chrome.tabs.create({ index: currentTab.index + 1, url: model.urlWithoutMeta.toString(), active: true });
-        tab.id && this.appService.setInitialRoutesAfterNavigation(tab.id, this.route.snapshot.url.map(seg => seg.path), model.id);
+        tab.id && this.appService.setInitialRoutesAfterNavigation(tab.id, this.route.snapshot.url.map(seg => seg.path), model.id, this.model?.rows.length as number);
       } else {
         currentTab.id && chrome.tabs.sendMessage(currentTab.id, { type: 7, data: model.urlWithoutMeta.toString() });
-        currentTab.id && this.appService.setInitialRoutesAfterNavigation(currentTab.id, this.route.snapshot.url.map(seg => seg.path), model.id);
+        currentTab.id && this.appService.setInitialRoutesAfterNavigation(currentTab.id, this.route.snapshot.url.map(seg => seg.path), model.id, this.model?.rows.length as number);
       }
     }
   }
 
   private async loadItemList() {
-    if (this.groupId) {
-      let response = await getAnnotations(this.config.key, this.groupId) as ItemListModel;
-      response.rows.forEach((row) => {
-        // The type of item is decided by target > selector 
-        row.itemType = (row.target.some(t => !!t.selector)) ? ItemType.Annotation : ItemType.PageNote;
-        this.updateSomeProperties(row);
-      })
-      this.model = response;
-      this.applyKeywordToNoteList();
-      this.route.snapshot.fragment && setTimeout(() => this.navigateToItem(this.route.snapshot.fragment), 100);
-    }
+    const preload = 20;
+    const initialLength: number = parseInt(this.route.snapshot.queryParams['listLength'] ?? 0);
+    await this.updateModel(initialLength + preload);
+    this.route.snapshot.queryParams['fragment'] && setTimeout(() => this.navigateToItem(this.route.snapshot.queryParams['fragment']), 500);
+  }
+
+  private async updateModel(length: number) {
+    let response = await this.annotationFetchService.requestAnnotations(length);
+    this.model = response;
+    this.applyKeywordToNoteList();
   }
 
   private onItemAddFromHeader(row: _Types.AnnotationsResponse.Row) {
     if (this.groupId === row.group && this.model?.rows) {
       const item = row as ItemModel;
       item.itemType = (row.target.some(t => !!t.selector)) ? ItemType.Annotation : ItemType.PageNote;
+      this.model.total++;
       this.model.rows.push(item);
-      this.updateSomeProperties(item);
+      updateSomeProperties(item);
       this.applyKeywordToNoteList();
       this.changeDetectorRef.detectChanges();
       this.scrollToBotton();
@@ -125,28 +153,4 @@ export class ItemListComponent implements OnInit, OnDestroy {
     }
   }
 
-  //TODO
-  private updateSomeProperties(row: ItemModel) {
-    let itemModel = row as ItemModel;
-    const urlResult = composeUrl(itemModel.uri);
-    if (urlResult?.directiveMap) {
-      try {
-        const metaString = urlResult.directiveMap.get('meta');
-        if (metaString) {
-          const meta: { favicon?: string, selectedText?: string } = JSON.parse(metaString);
-          itemModel.favicon = meta.favicon;
-          itemModel.textFragment = meta.selectedText;
-        }
-      } catch (e) {
-        console.debug(e);
-      }
-    }
-
-    // Remove the meta directive
-    let urlResultWithoutMeta = composeUrl(itemModel.uri, { metaDirectiveParameter: '' });
-    itemModel.urlWithoutMeta = urlResultWithoutMeta?.url;
-  }
-}
-export interface ItemListModel extends _Types.AnnotationsResponse.RootObject {
-  rows: ItemModel[];
 }

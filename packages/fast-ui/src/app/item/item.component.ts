@@ -12,6 +12,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { ConfirmationService, MenuItem } from 'primeng/api';
+import { composeUrl } from '../fragment/fragment';
 
 @Component({
   selector: 'item',
@@ -133,4 +134,34 @@ export enum ItemType {
 enum NoteBoxMode {
   Edit,
   View,
+}
+
+export function updateSomeProperties(row: ItemModel) {
+  let itemModel = row as ItemModel;
+  const urlResult = composeUrl(itemModel.uri);
+  if (urlResult?.directiveMap) {
+    try {
+      const metaString = urlResult.directiveMap.get('meta');
+      if (metaString) {
+        const meta: { favicon?: string, selectedText?: string } = JSON.parse(metaString);
+        itemModel.favicon = meta.favicon;
+        itemModel.textFragment = meta.selectedText;
+      }
+    } catch (e) {
+      console.debug(e);
+    }
+  }
+
+  // put the text of TextQuoteSelector
+  if (!itemModel.textFragment) {
+    itemModel.textFragment = itemModel?.target?.map(t => t?.selector?.filter(s => s.type === 'TextQuoteSelector').map(s => s.exact).join('\n')).join('\n');
+  }
+
+  if (itemModel.uri.includes('urn:')) {
+    itemModel.urlWithoutMeta = new URL(row.links.html);
+  } else {
+    // Remove the meta directive
+    let urlResultWithoutMeta = composeUrl(itemModel.uri, { metaDirectiveParameter: '' });
+    itemModel.urlWithoutMeta = urlResultWithoutMeta?.url;
+  }
 }

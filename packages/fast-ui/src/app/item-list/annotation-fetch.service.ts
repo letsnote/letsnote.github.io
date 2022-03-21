@@ -1,0 +1,33 @@
+import { Injectable } from '@angular/core';
+import { getAnnotations } from 'hypothesis-data';
+import { composeUrl } from '../fragment/fragment';
+import { ItemModel, ItemType, updateSomeProperties } from '../item/item.component';
+import { ItemListModel } from './item-list-model';
+
+export class AnnotationFetchService {
+
+  constructor(private key: string, private groupId: string) { }
+  annotationList: ItemListModel = { rows: [], total: 0 };
+
+  async requestAnnotations(length: number) {
+    const pageCount = Math.floor(length / 200) + 1
+    for (let i = 0; i < pageCount; i++) {
+      const got = this.annotationList.rows.length;
+      await this.updateList(got, ((length - got) > 200) ? 200 : (length - got));
+    }
+    return this.annotationList;
+  }
+
+  private async updateList(skipNumber: number, size: number) {
+    if (size == 0)
+      return;
+    let response = await getAnnotations(this.key, this.groupId, skipNumber, size) as ItemListModel;
+    response.rows.forEach((row) => {
+      // The type of item is decided by target > selector 
+      row.itemType = (row.target.some(t => !!t.selector)) ? ItemType.Annotation : ItemType.PageNote;
+      updateSomeProperties(row);
+    });
+    this.annotationList.rows.push(...response.rows);
+    this.annotationList.total = response.total;
+  }
+}

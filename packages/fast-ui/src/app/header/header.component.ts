@@ -24,7 +24,7 @@ export class HeaderComponent implements OnInit {
     {
       label: '그룹',
       command: () => {
-        this.router.navigate(['']);
+        this.router.navigate([''], { replaceUrl: true });
       },
     },
   ];
@@ -43,7 +43,7 @@ export class HeaderComponent implements OnInit {
           this.currentRoute = CurrentRoute.Group;
           const groupId = urlWithoutHashFragment.split('/')[2];
           api.getGroups(config.key).then((groups) => {
-            this.group = groups.find((g) => g.id === groupId);
+            this.group = groups.find((g) => g.id === groupId.split('?')[0]);
             this.breadcrumbItems = [
               ...this.baseBreadcrumbItems, {
                 label: `${this.group?.name}`,
@@ -101,7 +101,7 @@ export class HeaderComponent implements OnInit {
         name: `그룹${randomSeq}`,
         description: '',
       });
-      this.router.navigate(['groups', `${group.id}`]);
+      this.router.navigate(['groups', `${group.id}`], { replaceUrl: true });
     } catch (e) {
       console.info(`Try to create a group again with another sequence number.`);
       this.onNewGroup(++tryCount);
@@ -172,7 +172,7 @@ export class HeaderComponent implements OnInit {
             icon: 'pi pi-key',
             command: () => {
               this.onOpenKey.emit();
-              this.router.navigate(['setting']);
+              this.router.navigate(['setting'], { replaceUrl: true });
             },
           },
         ],

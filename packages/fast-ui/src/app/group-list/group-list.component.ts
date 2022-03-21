@@ -58,7 +58,7 @@ export class GroupListComponent implements OnInit, OnDestroy {
     let itemCountObject: ItemCountObject | null = countCacheString ? JSON.parse(countCacheString) : null;
     if (!itemCountObject) {
       // Get the count of items from Hypothesis 
-      const annotations = await api.getAnnotations(this.config.key, groupModel.id, 0);
+      const annotations = await api.getAnnotations(this.config.key, groupModel.id, 0, 0);
       itemCountObject = { itemCount: annotations.total, date: new Date() };
     }
 
@@ -78,7 +78,7 @@ export class GroupListComponent implements OnInit, OnDestroy {
   }
 
   onGroupClick(model: GroupModel) {
-    this.router.navigate(['groups', model.id]);
+    this.router.navigate(['groups', model.id], { replaceUrl: true });
   }
 
   async onGroupDeleteClick(model: GroupModel) {

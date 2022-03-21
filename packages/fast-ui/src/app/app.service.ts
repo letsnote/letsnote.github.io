@@ -14,7 +14,7 @@ export class AppService {
     const item = localStorage.getItem(`${tabId}`);
     if (item) {
       try {
-        const object: { routes: string[], date: Date, fragment?: string } = JSON.parse(item);
+        const object: { routes: string[], date: Date, fragment: string, listLength: number } = JSON.parse(item);
         if ((Math.abs(new Date(object.date).getTime() - Date.now()) / 1000) <= 30) // less than 30 seconds
           return object;
       } finally {
@@ -24,8 +24,8 @@ export class AppService {
     return undefined;
   }
 
-  setInitialRoutesAfterNavigation(tabId: number, routes: string[], fragment?: string) {
-    localStorage.setItem(`${tabId}`, JSON.stringify({ routes, date: new Date(), fragment }));
+  setInitialRoutesAfterNavigation(tabId: number, routes: string[], fragment: string, listLength: number) {
+    localStorage.setItem(`${tabId}`, JSON.stringify({ routes, date: new Date(), fragment, listLength }));
   }
 
   renderingEnabled = false
