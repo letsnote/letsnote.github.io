@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit } from '@angular/core';
 import { GroupModel } from '../group/group.component';
 import * as api from 'hypothesis-data'
 import { Router } from '@angular/router';
@@ -10,6 +10,7 @@ import { ExtensionService } from '../fragment/extension.service';
 import { HeaderObserverService } from '../header/header-observer.service';
 import { Subscription } from 'rxjs';
 import { AppService } from '../app.service';
+import { GroupListScrollService } from './group-list-scroll.service';
 
 @Component({
   templateUrl: './group-list.component.html',
@@ -21,9 +22,10 @@ export class GroupListComponent implements OnInit, OnDestroy {
   keyword: string = '';
   enabled = false;
   subscriptions: Subscription[] = [];
-  constructor(private config: ConfigService, private router: Router, private extensionService: ExtensionService, private headerService: HeaderObserverService
+  constructor(private hostElement: ElementRef, private config: ConfigService, private router: Router, private extensionService: ExtensionService, private headerService: HeaderObserverService
     , private appService: AppService
-    ,private changeDetectRef: ChangeDetectorRef) {
+    ,private changeDetectRef: ChangeDetectorRef,
+    private groupListScrollService: GroupListScrollService) {
     this.keyword = this.headerService.searchInputControl.value; // TODO
     let s = this.headerService.searchInputControl.valueChanges.subscribe((keyword) => {
       this.keyword = keyword;
@@ -34,11 +36,14 @@ export class GroupListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadGroups();
+    this.hostElement.nativeElement.onscroll = () => {
+      this.groupListScrollService.updateScroll(this.hostElement.nativeElement.scrollTop);
+    };
     //A ngOnInit method that is invoked immediately after the default change detector has checked the directive's data-bound properties for the first time
     let s2 = this.appService.onChangeComponentRendering.subscribe((enabled) => {
       this.enabled = enabled;
       this.changeDetectRef.detectChanges();
-    })
+    });
     this.subscriptions.push(s2);
   }
 

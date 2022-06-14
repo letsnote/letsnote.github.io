@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import * as api from 'hypothesis-data';
-import { createAnnotations, getProfile } from 'hypothesis-data';
+import { createAnnotations, getProfile, updateGroup } from 'hypothesis-data';
 import { MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { TextFragment } from 'text-fragments-polyfill/dist/fragment-generation-utils';
@@ -10,6 +10,9 @@ import { composeUrl } from '../fragment/fragment';
 import { GroupModel } from '../group/group.component';
 import { ConfigService } from '../setting/config.service';
 import { HeaderObserverService } from './header-observer.service';
+import { FormBuilder, FormControl } from '@angular/forms';
+import { rejects } from 'assert';
+import { HeaderService } from './header.service';
 
 @Component({
   selector: 'header',
@@ -34,7 +37,16 @@ export class HeaderComponent implements OnInit {
   noteSearchSubscription: Subscription | undefined;
   groupSearchSubscription: Subscription | undefined;
 
-  constructor(public config: ConfigService, private router: Router, private extensionService: ExtensionService, public observer: HeaderObserverService) {
+  renameFormGroup = this.formBuilder.group({
+    groupId: [''], 
+    oldValue: [''], 
+    newValue: ['']
+  });
+  displayRenameDialog = false;
+
+  constructor(public config: ConfigService, private router: Router, private extensionService: ExtensionService, public observer: HeaderObserverService,
+    private formBuilder: FormBuilder,
+    private headerService: HeaderService) {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         this.group = undefined;
@@ -47,9 +59,10 @@ export class HeaderComponent implements OnInit {
             this.breadcrumbItems = [
               ...this.baseBreadcrumbItems, {
                 label: `${this.group?.name}`,
+                id: `${this.group?.id}`,
                 command: () => {
-                  const child = window.open(`https://hypothes.is/groups/${this.group?.id}/edit`);
-                  //TODO
+                  if(this.group)
+                    this.requestToRenameGroup(this.group?.id, this.group?.name, this.group?.name);
                 }
               },
             ];
@@ -76,12 +89,18 @@ export class HeaderComponent implements OnInit {
 
     extensionService.requestFromContextMenu.subscribe(({ groupId }) => {
       this.onNewNote(groupId);
-    })
+    });
+    this.headerService.renameObservable.subscribe((param: {groupId: string, oldValue: string, newValue?: string}) => {
+      this.requestToRenameGroup(param.groupId, param.oldValue, param.newValue);
+    });
+
   }
+
   close() {
     console.debug('close');
     this.onClose.emit();
   }
+  
   @Output('close')
   onClose: EventEmitter<void> = new EventEmitter();
   @Output('openKey')
@@ -178,6 +197,37 @@ export class HeaderComponent implements OnInit {
         ],
       },
     ];
+  }
+
+  requestToRenameGroup(groupId: string, oldValue: string, newValue?: string){
+    this.renameFormGroup.patchValue({
+      groupId,
+      oldValue,
+      newValue: newValue ?? oldValue});
+    this.displayRenameDialog = true;
+    
+  }
+
+  onRenameSave(){
+    const id = this.renameFormGroup.get("groupId")?.value;
+    const newName = this.renameFormGroup.get("newValue")?.value;
+    updateGroup(this.config.key, id, {name: newName}).then(resolve => {
+      if(this.group){
+        this.group.name = newName;
+        this.breadcrumbItems = this.breadcrumbItems.map(b => {
+          if(b.id == id){
+            b.label = newName;
+          }
+          return b;
+        });
+        console.debug("그룹명이 업데이트 되었습니다.");
+        this.observer.pushGroupNameUpdate(id, newName);
+        this.displayRenameDialog = false;
+      }
+    }, () => {
+      console.debug("그룹명 업데이트에 실패하였습니다.");
+      this.displayRenameDialog = false;
+    });
   }
 }
 

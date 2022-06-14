@@ -12,9 +12,16 @@ export class HeaderObserverService {
   private newNoteSubject = new Subject<_Types.AnnotationsResponse.Row>();
   readonly newNoteObserverble = this.newNoteSubject.asObservable();
   
+  private groupRenameUpdatedSubject = new Subject<{groupId: string, newName: string}>();
+  readonly groupRenameUpdatedObservable = this.groupRenameUpdatedSubject.asObservable();
+
   readonly searchInputControl = new FormControl();
 
   pushNewNote(row: _Types.AnnotationsResponse.Row){
     this.newNoteSubject.next(row);
+  }
+
+  pushGroupNameUpdate(groupId: string, newName: string){
+    this.groupRenameUpdatedSubject.next({groupId, newName});
   }
 }

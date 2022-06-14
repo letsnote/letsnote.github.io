@@ -9,7 +9,7 @@
         </div>
     </div>
 </div>
-<p-contextMenu [target]="box" [model]="contextMenuItems"></p-contextMenu>
+<p-contextMenu #menu (onShow)="onShow()" (onHide)="onHide()" [target]="box" [model]="contextMenuItems"></p-contextMenu>
 <p-confirmPopup></p-confirmPopup>
 <!-- 
 <p>group works!</p>

@@ -23,6 +23,8 @@ import {SliderModule} from 'primeng/slider';
 import {ConfirmPopupModule} from 'primeng/confirmpopup';
 import {InputNumberModule} from 'primeng/inputnumber';
 import {SkeletonModule} from 'primeng/skeleton';
+import { RenameComponent } from './header/rename/rename.component';
+import {DialogModule} from 'primeng/dialog';
 @NgModule({
   declarations: [
     AppComponent,
@@ -31,7 +33,8 @@ import {SkeletonModule} from 'primeng/skeleton';
     ItemComponent,
     GroupComponent,
     ItemListComponent,
-    SettingComponent
+    SettingComponent,
+    RenameComponent
   ],
   imports: [
     BrowserModule,
@@ -50,6 +53,7 @@ import {SkeletonModule} from 'primeng/skeleton';
     SliderModule,
     InputNumberModule,
     SkeletonModule,
+    DialogModule,
     MarkdownModule.forRoot({ loader: HttpClient }),
   ],
   providers: [],

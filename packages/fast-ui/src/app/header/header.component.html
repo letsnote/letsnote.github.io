@@ -15,7 +15,8 @@
     <div class="m-auto" style="flex: 1;">
         <span class="p-input-icon-left">
             <i class="pi pi-search"></i>
-            <input type="text" pInputText [formControl]="observer.searchInputControl" placeholder="검색" class="p-inputtext-sm">
+            <input type="text" pInputText [formControl]="observer.searchInputControl" placeholder="검색"
+                class="p-inputtext-sm">
         </span>
     </div>
     <div class="m-auto">
@@ -29,3 +30,11 @@
         </ng-container>
     </div>
 </div>
+
+<p-dialog header="그룹명 변경" [(visible)]="displayRenameDialog" [modal]="true" [style]="{width: '90vw'}" [draggable]="false"
+    [resizable]="false">
+    <rename-body [formGroupInput]="renameFormGroup"></rename-body>
+    <ng-template pTemplate="footer">
+        <p-button icon="pi pi-check" (click)="onRenameSave()" label="저장" styleClass="p-button-text"></p-button>
+    </ng-template>
+</p-dialog>

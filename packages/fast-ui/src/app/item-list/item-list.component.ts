@@ -9,6 +9,7 @@ import { ItemComponent, ItemModel, ItemType, updateSomeProperties } from '../ite
 import { ConfigService } from '../setting/config.service';
 import { AnnotationFetchService } from './annotation-fetch.service';
 import { ItemListModel } from './item-list-model';
+import { ItemListScrollService } from './item-list-scroll.service';
 
 @Component({
   templateUrl: './item-list.component.html',
@@ -27,7 +28,7 @@ export class ItemListComponent implements OnInit, OnDestroy {
   annotationFetchService!: AnnotationFetchService;
   private scrollSubject = new Subject<void>();
   constructor(private hostElement: ElementRef, private config: ConfigService, private route: ActivatedRoute, private headerObserver: HeaderObserverService, private changeDetectorRef: ChangeDetectorRef
-    , private headerService: HeaderObserverService, private appService: AppService) {
+    , private headerService: HeaderObserverService, private appService: AppService, private scrollService: ItemListScrollService) {
     let s = route.params.subscribe((param) => {
       this.groupId = param['groupId'];
       this.annotationFetchService = new AnnotationFetchService(this.config.key, this.groupId);
@@ -46,9 +47,13 @@ export class ItemListComponent implements OnInit, OnDestroy {
       this.scrollSubject.next();
     };
     let s4 = this.scrollSubject.pipe(debounceTime(100)).subscribe(() => {
-      this.onScroll();
-    })
-    this.subscriptions.push(s, s2, s3, s4);
+      this.checkLazyLoadingCondition();
+      this.scrollService.savePosition(this.hostElement.nativeElement.scrollTop);
+    });
+    let s5 = this.scrollService.positionObservable.subscribe((top) => {
+      this.hostElement.nativeElement.scrollTop = top;
+    });
+    this.subscriptions.push(s, s2, s3, s4, s5);
   }
 
   ngOnInit(): void {
@@ -59,7 +64,7 @@ export class ItemListComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach(s => s.unsubscribe());
   }
 
-  private async onScroll() {
+  private async checkLazyLoadingCondition() {
     let candidates = this.skeletons.filter((item, i, arr) => {
       const rect: DOMRect = item.nativeElement.getBoundingClientRect();
       if (window.innerHeight > rect.bottom) {

@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 import { ConfirmationService, MenuItem } from 'primeng/api';
 import { composeUrl } from '../fragment/fragment';
+import { ItemListScrollService } from '../item-list/item-list-scroll.service';
 
 @Component({
   selector: 'item',
@@ -25,7 +26,8 @@ export class ItemComponent implements OnInit, OnChanges {
   constructor(
     private hostElementRef: ElementRef,
     private confirmationService: ConfirmationService,
-    private changeDetector: ChangeDetectorRef
+    private changeDetector: ChangeDetectorRef,
+    private scrollService: ItemListScrollService
   ) { }
   noteBoxMode: NoteBoxMode = NoteBoxMode.View;
   autoResize = true;
@@ -51,10 +53,11 @@ export class ItemComponent implements OnInit, OnChanges {
 
   onTryEdit() {
     this.noteBoxMode = NoteBoxMode.Edit;
-    this.changeDetector.detectChanges();
+    this.changeDetector.markForCheck();
     setTimeout(() => {
       this.textarea?.nativeElement.focus();
-    }, 100);
+      this.scrollService.restorePosition();
+    }, 0);
   }
 
   onStopEditing() {
@@ -62,6 +65,9 @@ export class ItemComponent implements OnInit, OnChanges {
     if (this.model) this.updateContextMenu(this.model);
     this.noteBoxMode = NoteBoxMode.View;
     this.changeDetector.detectChanges();
+    setTimeout(() => {
+      this.scrollService.restorePosition();
+    }, 0);
   }
 
   baseContextMenuItems: MenuItem[] = [
