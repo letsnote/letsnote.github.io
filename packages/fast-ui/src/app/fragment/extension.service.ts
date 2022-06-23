@@ -57,12 +57,13 @@ export class ExtensionService {
         }
       }
     };
-    chrome.contextMenus.onClicked.addListener(listener);
+    console.debug('add contextmenu listener');
+    chrome.contextMenus?.onClicked.addListener(listener);
   }
 
   async updateContextMenu(model: GroupListModel) {
-    console.debug('upate context menu');
-    chrome.contextMenus.removeAll(() => {
+    console.debug('update context menu');
+    chrome.contextMenus?.removeAll(() => {
       console.debug('upate context menu after removeall');
 
       chrome.contextMenus.create({

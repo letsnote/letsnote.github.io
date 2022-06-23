@@ -24,18 +24,25 @@ export class AppComponent implements AfterViewInit {
   }
 
   async ngAfterViewInit() {
-    const currentTab = await chrome.tabs.getCurrent();
     this.config.fontSizeObservable.subscribe((pxSize) => {
       if (this.outerElementRef) {
         if (document.body.parentElement)
           document.body.parentElement.style.fontSize = `${pxSize}px`;
       }
     });
-
     this.config.widthObservable.subscribe((emSize) => {
       const msg = { type: 2, size: emSize };
       this.extension.sendMessageToParent(msg);
     });
+    if(chrome?.tabs)
+      this.initializeHandlerForExtension();
+    else{
+      this.appService.enableComponentRendering();
+    }
+  }
+
+  private async initializeHandlerForExtension(){
+    const currentTab = await chrome.tabs.getCurrent();
 
     chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       this.ngZone.run(async () => { // allows you to reenter Angular zone from a task that was executed outside of the Angular zone
@@ -55,7 +62,7 @@ export class AppComponent implements AfterViewInit {
     this.initializeRoutes();
   }
 
-  async initializeRoutes() {
+  private async initializeRoutes() {
     const tab = await chrome.tabs.getCurrent();
     if (tab.id) {
       const routesAndFragment = this.appService.getAndRemoveInitialRoutes(tab.id)
