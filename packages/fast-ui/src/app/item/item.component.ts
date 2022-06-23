@@ -110,6 +110,10 @@ export class ItemComponent implements OnInit, OnChanges {
     }
   }
 
+  update(){
+    this.changeDetector.markForCheck();
+  }
+
   updateContextMenu(model: ItemModel) {
     this.contextMenuItems = this.baseContextMenuItems;
     this.contextMenuItems = [
@@ -126,7 +130,8 @@ export class ItemComponent implements OnInit, OnChanges {
 
 export interface ItemModel extends _Types.AnnotationsResponse.Row {
   itemType: ItemType;
-  disabled?: boolean;
+  // disabled?: boolean;
+  display: boolean;
   favicon?: string;
   textFragment?: string;
   urlWithoutMeta?: URL;

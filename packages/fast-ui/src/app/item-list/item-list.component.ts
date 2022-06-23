@@ -8,6 +8,7 @@ import { HeaderObserverService } from '../header/header-observer.service';
 import { ItemComponent, ItemModel, ItemType, updateSomeProperties } from '../item/item.component';
 import { ConfigService } from '../setting/config.service';
 import { AnnotationFetchService } from './annotation-fetch.service';
+import { AnnotationListService } from './annotation-list.service';
 import { ItemListModel } from './item-list-model';
 import { ItemListScrollService } from './item-list-scroll.service';
 
@@ -25,13 +26,13 @@ export class ItemListComponent implements OnInit, OnDestroy {
   public listItems!: QueryList<ItemComponent>
   @ViewChildren('skeleton')
   skeletons!: QueryList<ElementRef<HTMLDivElement>>;
-  annotationFetchService!: AnnotationFetchService;
+  annotationFetchService!: AnnotationListService;
   private scrollSubject = new Subject<void>();
   constructor(private hostElement: ElementRef, private config: ConfigService, private route: ActivatedRoute, private headerObserver: HeaderObserverService, private changeDetectorRef: ChangeDetectorRef
     , private headerService: HeaderObserverService, private appService: AppService, private scrollService: ItemListScrollService) {
     let s = route.params.subscribe((param) => {
       this.groupId = param['groupId'];
-      this.annotationFetchService = new AnnotationFetchService(this.config.key, this.groupId);
+      this.annotationFetchService = new AnnotationListService(this.config.key, this.groupId);
       this.loadItemList();
     })
     let s2 = this.headerObserver.newNoteObserverble.subscribe((row) => {
@@ -41,7 +42,7 @@ export class ItemListComponent implements OnInit, OnDestroy {
     this.keyword = ''; //TODO
     let s3 = this.headerService.searchInputControl.valueChanges.subscribe((keyword) => {
       this.keyword = keyword;
-      this.applyKeywordToNoteList();
+      this.annotationFetchService.applyFilter(this.keyword);
     });
     this.hostElement.nativeElement.onscroll = () => {
       this.scrollSubject.next();
@@ -74,7 +75,7 @@ export class ItemListComponent implements OnInit, OnDestroy {
     });
     if (candidates.length != 0) {
       const preLoad = 10;
-      let length = ((this.model?.rows.length ?? 0) + candidates.length + preLoad);
+      let length = ((this.model?.rows.filter(r => r.display).length ?? 0) + candidates.length + preLoad);
       this.updateModel(length);
     }
   }
@@ -114,9 +115,12 @@ export class ItemListComponent implements OnInit, OnDestroy {
   }
 
   private async updateModel(length: number) {
-    let response = await this.annotationFetchService.requestAnnotations(length);
+    if(!this.model){
+      this.model = await this.annotationFetchService.fetchList();
+    }
+    let response = this.annotationFetchService.requestLazyLoading(length);
     this.model = response;
-    this.applyKeywordToNoteList();
+    this.annotationFetchService.applyFilter(this.keyword);
   }
 
   private onItemAddFromHeader(row: _Types.AnnotationsResponse.Row) {
@@ -126,7 +130,7 @@ export class ItemListComponent implements OnInit, OnDestroy {
       this.model.total++;
       this.model.rows.push(item);
       updateSomeProperties(item);
-      this.applyKeywordToNoteList();
+      this.annotationFetchService.applyFilter(this.keyword);
       this.changeDetectorRef.detectChanges();
       this.scrollToBotton();
     }
@@ -136,20 +140,6 @@ export class ItemListComponent implements OnInit, OnDestroy {
     setTimeout(() => this.hostElement.nativeElement.scrollTop = this.hostElement.nativeElement.scrollHeight, 100);
   }
 
-  //TODO
-  private applyKeywordToNoteList() {
-    this.model?.rows.forEach(r => {
-      if (r.uri?.toLocaleLowerCase().includes(this.keyword.toLocaleLowerCase())
-        || r.text?.toLocaleLowerCase().includes(this.keyword.toLocaleLowerCase())
-        || r.tags?.some(t => t.toLocaleLowerCase().includes(this.keyword.toLocaleLowerCase()))
-        || r.document?.title?.some(t => t.toLocaleLowerCase().includes(this.keyword.toLocaleLowerCase()))
-      ) {
-        r.disabled = false;
-      } else {
-        r.disabled = true;
-      }
-    });
-  }
 
   private navigateToItem(id: string | null) {
     if (id) {

@@ -1,8 +1,11 @@
 <ng-container>
-    <item *ngFor="let i of model?.rows" [model]="i" (finishEditing)="onFinishEditing($event)" #item
-        (itemDeleteClick)="onItemDeleteClick($event)" [ngStyle]="{'display': i.disabled ? 'none' : 'inherit'}"
-        (itemClick)="onItemClick($event)"></item>
-    <div #skeleton *ngFor="let i of [].constructor((model?.total ?? 0) - (model?.rows?.length ?? 0) < 0 ? 0 : (model?.total ?? 0) - (model?.rows?.length ?? 0))">
-        <p-skeleton height="5rem" styleClass="mb-2"></p-skeleton>
-    </div>
+    <ng-container *ngFor="let i of model?.rows">
+        <item [model]="i" (finishEditing)="onFinishEditing($event)" #item (itemDeleteClick)="onItemDeleteClick($event)"
+            *ngIf="i.display" (itemClick)="onItemClick($event)"></item>
+    </ng-container>
+    <ng-container *ngFor="let i of model?.rows">
+        <div #skeleton *ngIf="!(i.display) && (keyword??'') == ''">
+            <p-skeleton height="5rem" styleClass="mb-2"></p-skeleton>
+        </div>
+    </ng-container>
 </ng-container>
