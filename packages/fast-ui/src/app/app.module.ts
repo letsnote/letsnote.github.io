@@ -4,35 +4,34 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { MarkdownModule } from 'ngx-markdown';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { HeaderComponent } from './header/header.component';
-import {ButtonModule} from 'primeng/button';
 import { GroupListComponent } from './group-list/group-list.component';
-import { ItemComponent } from './item/item.component';
+// import { ItemComponent } from './item/item-item/item.component';
 import { GroupComponent } from './group/group.component';
-import {MenuModule} from 'primeng/menu';
-import { ItemListComponent } from './item-list/item-list.component';
+// import { ItemListComponent } from './item/item-list.component';
 import { SettingComponent } from './setting/setting.component';
-import { InputTextModule } from 'primeng/inputtext'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import {InputTextareaModule} from 'primeng/inputtextarea';
-import {BreadcrumbModule} from 'primeng/breadcrumb';
-import {ContextMenuModule} from 'primeng/contextmenu';
-import {SliderModule} from 'primeng/slider';
-import {ConfirmPopupModule} from 'primeng/confirmpopup';
-import {InputNumberModule} from 'primeng/inputnumber';
-import {SkeletonModule} from 'primeng/skeleton';
 import { RenameComponent } from './header/rename/rename.component';
-import {DialogModule} from 'primeng/dialog';
+import { SkeletonModule } from 'primeng/skeleton';
+import { ButtonModule } from 'primeng/button';
+import { MenuModule } from 'primeng/menu';
+import { InputTextModule } from 'primeng/inputtext';
+import { ContextMenuModule } from 'primeng/contextmenu';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { SliderModule } from 'primeng/slider';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { DialogModule } from 'primeng/dialog';
+import { MarkdownModule } from 'ngx-markdown';
+
 @NgModule({
   declarations: [
     AppComponent,
     HeaderComponent,
     GroupListComponent,
-    ItemComponent,
     GroupComponent,
-    ItemListComponent,
     SettingComponent,
     RenameComponent
   ],
@@ -41,20 +40,17 @@ import {DialogModule} from 'primeng/dialog';
     AppRoutingModule,
     BrowserAnimationsModule,
     HttpClientModule,
+    FormsModule,
+    ReactiveFormsModule,
     ButtonModule,
     MenuModule,
     InputTextModule,
     ContextMenuModule,
-    FormsModule,
-    InputTextareaModule,
     BreadcrumbModule,
-    ReactiveFormsModule,
     ConfirmPopupModule,
     SliderModule,
     InputNumberModule,
-    SkeletonModule,
     DialogModule,
-    MarkdownModule.forRoot({ loader: HttpClient }),
   ],
   providers: [],
   bootstrap: [AppComponent]

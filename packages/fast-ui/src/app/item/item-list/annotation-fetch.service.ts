@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { getAnnotations } from 'hypothesis-data';
-import { composeUrl } from '../fragment/fragment';
+import { composeUrl } from '../../fragment/fragment';
 import { ItemModel, ItemType, updateSomeProperties } from '../item/item.component';
 import { ItemListModel } from './item-list-model';
 

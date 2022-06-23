@@ -1,0 +1,35 @@
+<ng-container *ngIf="model">
+    <div class="v-box" #box>
+        <a class="h-box" (click)="onLinkClick($event)" href="{{model?.urlWithoutMeta?.toString() ?? ''}}">
+            <div class="left">
+                <div>
+                    <span>{{model.itemType === 0 ? '주석' : '노트'}}</span>
+                    <span *ngIf="model.urlWithoutMeta !== undefined"><span> in </span>
+                        <span class="hostname">
+                            <i class="pi pi-globe"></i> {{model.urlWithoutMeta.hostname}}</span></span>
+                </div>
+                <div class="font-semibold title">
+                    {{model.document.title?.[0]}}
+                </div>
+                <div class="font-light">
+                    {{model.textFragment}}
+                </div>
+            </div>
+            <div class="right">
+                <img src="{{model.favicon}}">
+            </div>
+        </a>
+        <div class="spliter" *ngIf="(model.text && model.text.length > 0) || noteBoxMode === 0"></div>
+        <div class="note-box" *ngIf="(model.text && model.text.length > 0) || noteBoxMode === 0"
+            (dblclick)="onTryEdit()">
+            <markdown *ngIf="noteBoxMode === 1" ngPreserveWhitespaces>
+                {{model.text}}
+            </markdown>
+            <textarea #textarea (blur)="onStopEditing()" *ngIf="noteBoxMode === 0" rows="5" pInputTextarea
+                [autoResize]="autoResize" [(ngModel)]="model.text"></textarea>
+        </div>
+
+        <p-contextMenu [target]="box" [model]="contextMenuItems"></p-contextMenu>
+    </div>
+    <p-confirmPopup></p-confirmPopup>
+</ng-container>

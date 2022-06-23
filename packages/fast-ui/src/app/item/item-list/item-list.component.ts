@@ -1,20 +1,21 @@
 import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { deleteAnnotation, getAnnotations, updateAnnotation } from 'hypothesis-data';
+import { deleteAnnotation, updateAnnotation } from 'hypothesis-data';
 import { debounceTime, Subject, Subscription } from 'rxjs';
-import { AppService } from '../app.service';
-import { composeUrl } from '../fragment/fragment';
-import { HeaderObserverService } from '../header/header-observer.service';
+import { AppService } from 'src/app/app.service';
+import { HeaderObserverService } from 'src/app/header/header-observer.service';
+import { ConfigService } from 'src/app/setting/config.service';
+// import { AppService } from '../app.service';
+// import { HeaderObserverService } from '../header/header-observer.service';
 import { ItemComponent, ItemModel, ItemType, updateSomeProperties } from '../item/item.component';
-import { ConfigService } from '../setting/config.service';
-import { AnnotationFetchService } from './annotation-fetch.service';
+// import { ConfigService } from '../setting/config.service';
 import { AnnotationListService } from './annotation-list.service';
 import { ItemListModel } from './item-list-model';
 import { ItemListScrollService } from './item-list-scroll.service';
 
 @Component({
   templateUrl: './item-list.component.html',
-  styleUrls: ['./item-list.component.scss', '../style/list.scss']
+  styleUrls: ['./item-list.component.scss', '../../style/list.scss']
 })
 export class ItemListComponent implements OnInit, OnDestroy {
   model: ItemListModel | undefined;
