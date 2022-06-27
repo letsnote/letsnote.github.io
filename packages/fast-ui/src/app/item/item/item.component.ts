@@ -29,6 +29,7 @@ export class ItemComponent implements OnInit, OnChanges {
     private changeDetector: ChangeDetectorRef,
     private scrollService: ItemListScrollService
   ) { }
+  NoteBoxMode = NoteBoxMode;
   noteBoxMode: NoteBoxMode = NoteBoxMode.View;
   autoResize = true;
   @Input()

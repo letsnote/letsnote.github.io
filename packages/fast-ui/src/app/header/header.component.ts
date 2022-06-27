@@ -38,10 +38,20 @@ export class HeaderComponent implements OnInit {
   groupSearchSubscription: Subscription | undefined;
 
   renameFormGroup = this.formBuilder.group({
-    groupId: [''], 
-    oldValue: [''], 
+    groupId: [''],
+    oldValue: [''],
     newValue: ['']
   });
+
+
+  items = [
+    {
+      label: '새 노트', icon: 'pi pi-plus', command: () => {
+        this.onNewNote(undefined, "EMPTY_SOURCE");
+      }
+    }
+  ];
+
   displayRenameDialog = false;
 
   constructor(public config: ConfigService, private router: Router, private extensionService: ExtensionService, public observer: HeaderObserverService,
@@ -61,7 +71,7 @@ export class HeaderComponent implements OnInit {
                 label: `${this.group?.name}`,
                 id: `${this.group?.id}`,
                 command: () => {
-                  if(this.group)
+                  if (this.group)
                     this.requestToRenameGroup(this.group?.id, this.group?.name, this.group?.name);
                 }
               },
@@ -90,7 +100,7 @@ export class HeaderComponent implements OnInit {
     extensionService.requestFromContextMenu.subscribe(({ groupId }) => {
       this.onNewNote(groupId);
     });
-    this.headerService.renameObservable.subscribe((param: {groupId: string, oldValue: string, newValue?: string}) => {
+    this.headerService.renameObservable.subscribe((param: { groupId: string, oldValue: string, newValue?: string }) => {
       this.requestToRenameGroup(param.groupId, param.oldValue, param.newValue);
     });
 
@@ -100,7 +110,7 @@ export class HeaderComponent implements OnInit {
     console.debug('close');
     this.onClose.emit();
   }
-  
+
   @Output('close')
   onClose: EventEmitter<void> = new EventEmitter();
   @Output('openKey')
@@ -131,7 +141,7 @@ export class HeaderComponent implements OnInit {
    * TODO: It should not be here
    * @param groupId 
    */
-  async onNewNote(groupId?: string) {
+  async onNewNote(groupId?: string, urlParameter?: string) {
     const profile = await getProfile(this.config.key);
     const group = groupId ?? this.group?.id as string;
     chrome?.tabs?.query({ active: true, currentWindow: true }, async (tabs) => {
@@ -139,7 +149,7 @@ export class HeaderComponent implements OnInit {
       if (tab && tab.id && tab.title && tab.url) {
         const tabId = tab.id;
         const title = tab.title;
-        const url = tab.url;
+        const url = urlParameter ?? tab.url;
         const favicon = tab.favIconUrl;
         const fragment = await new Promise<
           | {
@@ -199,23 +209,24 @@ export class HeaderComponent implements OnInit {
     ];
   }
 
-  requestToRenameGroup(groupId: string, oldValue: string, newValue?: string){
+  requestToRenameGroup(groupId: string, oldValue: string, newValue?: string) {
     this.renameFormGroup.patchValue({
       groupId,
       oldValue,
-      newValue: newValue ?? oldValue});
+      newValue: newValue ?? oldValue
+    });
     this.displayRenameDialog = true;
-    
+
   }
 
-  onRenameSave(){
+  onRenameSave() {
     const id = this.renameFormGroup.get("groupId")?.value;
     const newName = this.renameFormGroup.get("newValue")?.value;
-    updateGroup(this.config.key, id, {name: newName}).then(resolve => {
-      if(this.group){
+    updateGroup(this.config.key, id, { name: newName }).then(resolve => {
+      if (this.group) {
         this.group.name = newName;
         this.breadcrumbItems = this.breadcrumbItems.map(b => {
-          if(b.id == id){
+          if (b.id == id) {
             b.label = newName;
           }
           return b;

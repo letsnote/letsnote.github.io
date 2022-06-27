@@ -24,7 +24,7 @@ import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { SliderModule } from 'primeng/slider';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DialogModule } from 'primeng/dialog';
-import { MarkdownModule } from 'ngx-markdown';
+import {SplitButtonModule} from 'primeng/splitbutton';
 
 @NgModule({
   declarations: [
@@ -51,6 +51,7 @@ import { MarkdownModule } from 'ngx-markdown';
     SliderModule,
     InputNumberModule,
     DialogModule,
+    SplitButtonModule
   ],
   providers: [],
   bootstrap: [AppComponent]

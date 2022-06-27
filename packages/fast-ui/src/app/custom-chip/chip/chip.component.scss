@@ -1,0 +1,9 @@
+p-chip{
+    cursor: pointer;
+    user-select: none;
+}
+
+:host ::ng-deep .custom-chip-toggled{
+    background-color: rgb(6, 10, 239);
+    color: white;
+}

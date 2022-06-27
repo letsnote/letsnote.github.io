@@ -10,6 +10,14 @@ export class AnnotationListService {
   annotations: ItemListModel = { rows: [], total: 0 };
   keyword: string = '';
   lazyLoadedLength: number = 20;
+  applySort(sort: 'updated' | 'created'){    
+    this.annotations.rows.sort((a,b) => {
+      if(new Date(a[sort]).getTime() < new Date(b[sort]).getTime())
+        return 1;
+      else 
+        return -1;
+    });
+  }
   applyFilter(text: string) {
     this.keyword = text;
     if ((text ?? '') == '') {

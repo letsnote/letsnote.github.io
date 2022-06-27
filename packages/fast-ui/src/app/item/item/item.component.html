@@ -19,13 +19,13 @@
                 <img src="{{model.favicon}}">
             </div>
         </a>
-        <div class="spliter" *ngIf="(model.text && model.text.length > 0) || noteBoxMode === 0"></div>
-        <div class="note-box" *ngIf="(model.text && model.text.length > 0) || noteBoxMode === 0"
+        <div class="spliter" *ngIf="(model.text && model.text.length > 0) || noteBoxMode === NoteBoxMode.Edit"></div>
+        <div class="note-box" *ngIf="(model.text && model.text.length > 0) || noteBoxMode === NoteBoxMode.Edit" (touch)="onTryEdit()"
             (dblclick)="onTryEdit()">
-            <markdown *ngIf="noteBoxMode === 1" ngPreserveWhitespaces>
+            <markdown *ngIf="noteBoxMode  === NoteBoxMode.View" ngPreserveWhitespaces>
                 {{model.text}}
             </markdown>
-            <textarea #textarea (blur)="onStopEditing()" *ngIf="noteBoxMode === 0" rows="5" pInputTextarea
+            <textarea #textarea (blur)="onStopEditing()" *ngIf="noteBoxMode === NoteBoxMode.Edit" rows="5" pInputTextarea
                 [autoResize]="autoResize" [(ngModel)]="model.text"></textarea>
         </div>
 

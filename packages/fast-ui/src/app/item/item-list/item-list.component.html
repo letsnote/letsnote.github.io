@@ -1,4 +1,10 @@
 <ng-container>
+    <div class="custom-filter">
+        <custom-chip [label]="'업데이트순'" [toggle]="exclusiveChip === ExclusiveChipType.UPDATED" 
+            (toggle)="onToggle(ExclusiveChipType.UPDATED, $event)"></custom-chip>
+        <custom-chip [label]="'생성순'"  [toggle]="exclusiveChip === ExclusiveChipType.CREATED"
+         (toggle)="onToggle(ExclusiveChipType.CREATED, $event)"></custom-chip>
+    </div>
     <ng-container *ngFor="let i of model?.rows">
         <item [model]="i" (finishEditing)="onFinishEditing($event)" #item (itemDeleteClick)="onItemDeleteClick($event)"
             *ngIf="i.display" (itemClick)="onItemClick($event)"></item>

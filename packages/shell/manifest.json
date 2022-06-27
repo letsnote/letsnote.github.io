@@ -6,7 +6,8 @@
     {
       "matches": [
         "https://*/*",
-        "http://*/*"
+        "http://*/*",
+        "file://*/*"
       ],
       "js": [
         "webcomponents-bundle.js",

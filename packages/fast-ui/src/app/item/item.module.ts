@@ -15,6 +15,7 @@ import {DialogModule} from 'primeng/dialog';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ItemComponent } from './item/item.component';
+import { CustomChipModule } from '../custom-chip/custom-chip.module';
 
 @NgModule({
   declarations: [
@@ -35,6 +36,7 @@ import { ItemComponent } from './item/item.component';
     ConfirmPopupModule,
     SkeletonModule,
     DialogModule,
+    CustomChipModule,
     MarkdownModule.forRoot({ loader: HttpClient }),
   ]
 })

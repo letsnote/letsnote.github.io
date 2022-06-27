@@ -18,8 +18,10 @@ import { ItemListScrollService } from './item-list-scroll.service';
   styleUrls: ['./item-list.component.scss', '../../style/list.scss']
 })
 export class ItemListComponent implements OnInit, OnDestroy {
+  ExclusiveChipType = ExclusiveChipType;
   model: ItemListModel | undefined;
   groupId!: string;
+  exclusiveChip = ExclusiveChipType.UPDATED;
 
   keyword: string = '';
   private subscriptions: Subscription[] = [];
@@ -116,25 +118,29 @@ export class ItemListComponent implements OnInit, OnDestroy {
   }
 
   private async updateModel(length: number) {
-    if(!this.model){
+    if (!this.model) {
       this.model = await this.annotationFetchService.fetchList();
     }
     let response = this.annotationFetchService.requestLazyLoading(length);
     this.model = response;
     this.annotationFetchService.applyFilter(this.keyword);
+    this.updateSort();
   }
 
   private onItemAddFromHeader(row: _Types.AnnotationsResponse.Row) {
-    if (this.groupId === row.group && this.model?.rows) {
-      const item = row as ItemModel;
-      item.itemType = (row.target.some(t => !!t.selector)) ? ItemType.Annotation : ItemType.PageNote;
-      this.model.total++;
-      this.model.rows.push(item);
-      updateSomeProperties(item);
-      this.annotationFetchService.applyFilter(this.keyword);
-      this.changeDetectorRef.detectChanges();
-      this.scrollToBotton();
-    }
+    const preLoad = 5; //five items with new one.
+    let length = ((this.model?.rows.filter(r => r.display).length ?? 0) + preLoad);
+    this.updateModel(length);
+    // if (this.groupId === row.group && this.model?.rows) {
+    //   const item = row as ItemModel;
+    //   item.itemType = (row.target.some(t => !!t.selector)) ? ItemType.Annotation : ItemType.PageNote;
+    //   this.model.total++;
+    //   this.model.rows.push(item);
+    //   updateSomeProperties(item);
+    //   this.annotationFetchService.applyFilter(this.keyword);
+    //   this.changeDetectorRef.detectChanges();
+    //   this.scrollToBotton();
+    // }
   }
 
   private scrollToBotton() {
@@ -149,4 +155,33 @@ export class ItemListComponent implements OnInit, OnDestroy {
     }
   }
 
+  onToggle(type: ExclusiveChipType, toggled: boolean) {
+    if (toggled) {
+      this.exclusiveChip = type;
+    } else {
+      this.exclusiveChip = ExclusiveChipType.NONE;
+    }
+    this.updateSort();
+  }
+
+  private updateSort(){
+    switch (this.exclusiveChip) {
+      case ExclusiveChipType.NONE:
+        this.annotationFetchService.applySort("updated");
+        break;
+      case ExclusiveChipType.CREATED:
+        this.annotationFetchService.applySort("created");
+        break;
+      case ExclusiveChipType.UPDATED:
+        this.annotationFetchService.applySort("updated");
+        break;
+    }
+  }
+
+}
+
+export enum ExclusiveChipType {
+  UPDATED,
+  CREATED,
+  NONE
 }
