@@ -48,6 +48,7 @@ export class AnnotationListService {
   }
 
   async fetchList() {
+    this.annotations.rows = [];
     let response = await getAnnotations(this.key, this.groupId, 0, 200) as ItemListModel;
     while (response.rows.length < response.total) {
       let additional = await getAnnotations(this.key, this.groupId, response.rows.length, 200) as ItemListModel;

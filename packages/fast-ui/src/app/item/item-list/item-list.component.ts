@@ -79,7 +79,7 @@ export class ItemListComponent implements OnInit, OnDestroy {
     if (candidates.length != 0) {
       const preLoad = 10;
       let length = ((this.model?.rows.filter(r => r.display).length ?? 0) + candidates.length + preLoad);
-      this.updateModel(length);
+      this.showMore(length);
     }
   }
 
@@ -113,14 +113,19 @@ export class ItemListComponent implements OnInit, OnDestroy {
   private async loadItemList() {
     const preload = 20;
     const initialLength: number = parseInt(this.route.snapshot.queryParams['listLength'] ?? 0);
-    await this.updateModel(initialLength + preload);
+    await this.fetchModel(initialLength + preload);
     this.route.snapshot.queryParams['fragment'] && setTimeout(() => this.navigateToItem(this.route.snapshot.queryParams['fragment']), 500);
   }
 
-  private async updateModel(length: number) {
-    if (!this.model) {
-      this.model = await this.annotationFetchService.fetchList();
-    }
+  private async fetchModel(showItemCount: number) {
+    this.model = await this.annotationFetchService.fetchList();
+    let response = this.annotationFetchService.requestLazyLoading(showItemCount);
+    this.model = response;
+    this.annotationFetchService.applyFilter(this.keyword);
+    this.updateSort();
+  }
+
+  private async showMore(length: number) {
     let response = this.annotationFetchService.requestLazyLoading(length);
     this.model = response;
     this.annotationFetchService.applyFilter(this.keyword);
@@ -130,7 +135,7 @@ export class ItemListComponent implements OnInit, OnDestroy {
   private onItemAddFromHeader(row: _Types.AnnotationsResponse.Row) {
     const preLoad = 5; //five items with new one.
     let length = ((this.model?.rows.filter(r => r.display).length ?? 0) + preLoad);
-    this.updateModel(length);
+    this.fetchModel(length);
     // if (this.groupId === row.group && this.model?.rows) {
     //   const item = row as ItemModel;
     //   item.itemType = (row.target.some(t => !!t.selector)) ? ItemType.Annotation : ItemType.PageNote;
