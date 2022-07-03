@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { getAnnotations } from 'hypothesis-data';
+import { deleteAnnotation, getAnnotations } from 'hypothesis-data';
 import { composeUrl } from '../../fragment/fragment';
 import { ItemModel, ItemType, updateSomeProperties } from '../item/item.component';
 import { ItemListModel } from './item-list-model';
@@ -9,17 +9,44 @@ export class AnnotationListService {
   constructor(private key: string, private groupId: string) { }
   annotations: ItemListModel = { rows: [], total: 0 };
   keyword: string = '';
+  sort: 'updated' | 'created' = 'updated';
   lazyLoadedLength: number = 20;
-  applySort(sort: 'updated' | 'created'){    
-    this.annotations.rows.sort((a,b) => {
-      if(new Date(a[sort]).getTime() < new Date(b[sort]).getTime())
+
+  async deleteAnnotation(apiKey: string, id: string) {
+    await deleteAnnotation(apiKey, id);
+    this.annotations = {
+      total: this.annotations.total - 1
+      , rows: this.annotations.rows.filter((m) => m.id != id)
+    };
+    return this.annotations;
+  }
+
+  async updateListAfterCreatingAnnotation(row: _Types.AnnotationsResponse.Row) {
+    let annotation = row as ItemModel;
+    annotation.itemType = (annotation.target.some(t => !!t.selector)) ? ItemType.Annotation : ItemType.PageNote;
+    updateSomeProperties(annotation);
+    this.annotations = {
+      rows: [...this.annotations.rows, annotation],
+      total: this.annotations.total
+    };
+    this.applyFilter();
+    this.applySort();
+    return this.annotations;
+  }
+
+  applySort(sort?: 'updated' | 'created') {
+    this.sort = sort ?? this.sort;
+    this.annotations.rows.sort((a, b) => {
+      if (new Date(a[this.sort]).getTime() < new Date(b[this.sort]).getTime())
         return 1;
-      else 
+      else
         return -1;
     });
+    return this.annotations;
   }
-  applyFilter(text: string) {
-    this.keyword = text;
+
+  applyFilter(text?: string) {
+    this.keyword = text ?? this.keyword;
     if ((text ?? '') == '') {
       this.requestLazyLoading(this.lazyLoadedLength);
     } else {

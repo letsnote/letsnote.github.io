@@ -4,11 +4,9 @@ import { deleteAnnotation, updateAnnotation } from 'hypothesis-data';
 import { debounceTime, Subject, Subscription } from 'rxjs';
 import { AppService } from 'src/app/app.service';
 import { HeaderObserverService } from 'src/app/header/header-observer.service';
+import { AnnotationService } from 'src/app/service/annotation.service';
 import { ConfigService } from 'src/app/setting/config.service';
-// import { AppService } from '../app.service';
-// import { HeaderObserverService } from '../header/header-observer.service';
 import { ItemComponent, ItemModel, ItemType, updateSomeProperties } from '../item/item.component';
-// import { ConfigService } from '../setting/config.service';
 import { AnnotationListService } from './annotation-list.service';
 import { ItemListModel } from './item-list-model';
 import { ItemListScrollService } from './item-list-scroll.service';
@@ -19,7 +17,7 @@ import { ItemListScrollService } from './item-list-scroll.service';
 })
 export class ItemListComponent implements OnInit, OnDestroy {
   ExclusiveChipType = ExclusiveChipType;
-  model: ItemListModel | undefined;
+  model: ItemModel[] = [];
   groupId!: string;
   exclusiveChip = ExclusiveChipType.UPDATED;
 
@@ -31,14 +29,18 @@ export class ItemListComponent implements OnInit, OnDestroy {
   skeletons!: QueryList<ElementRef<HTMLDivElement>>;
   annotationFetchService!: AnnotationListService;
   private scrollSubject = new Subject<void>();
-  constructor(private hostElement: ElementRef, private config: ConfigService, private route: ActivatedRoute, private headerObserver: HeaderObserverService, private changeDetectorRef: ChangeDetectorRef
-    , private headerService: HeaderObserverService, private appService: AppService, private scrollService: ItemListScrollService) {
+  constructor(private hostElement: ElementRef
+    , private config: ConfigService
+    , private route: ActivatedRoute
+    , private changeDetectorRef: ChangeDetectorRef
+    , private headerService: HeaderObserverService, private appService: AppService, private scrollService: ItemListScrollService
+    , private annotationService: AnnotationService) {
     let s = route.params.subscribe((param) => {
       this.groupId = param['groupId'];
       this.annotationFetchService = new AnnotationListService(this.config.key, this.groupId);
       this.loadItemList();
     })
-    let s2 = this.headerObserver.newNoteObserverble.subscribe((row) => {
+    let s2 = this.annotationService.newNoteObserverble.subscribe((row) => {
       if (this.groupId === row.group)
         this.onItemAddFromHeader(row);
     });
@@ -78,7 +80,7 @@ export class ItemListComponent implements OnInit, OnDestroy {
     });
     if (candidates.length != 0) {
       const preLoad = 10;
-      let length = ((this.model?.rows.filter(r => r.display).length ?? 0) + candidates.length + preLoad);
+      let length = ((this.model?.filter(r => r.display).length ?? 0) + candidates.length + preLoad);
       this.showMore(length);
     }
   }
@@ -88,12 +90,15 @@ export class ItemListComponent implements OnInit, OnDestroy {
   }
 
   async onItemDeleteClick(itemModel: ItemModel) {
-    if (this.model) {
-      await deleteAnnotation(this.config.key, itemModel.id);
-      this.model = { ...this.model, rows: this.model?.rows.filter((m) => m.id != itemModel.id) };
-      this.model.total--;
-      this.changeDetectorRef.detectChanges(); // TODO: is it right?
-    }
+    this.model = (await this.annotationFetchService
+      .deleteAnnotation(this.config.key, itemModel.id)).rows;
+    this.changeDetectorRef.detectChanges();
+  }
+
+  private async onItemAddFromHeader(row: _Types.AnnotationsResponse.Row) {
+    this.model = (await this.annotationFetchService
+      .updateListAfterCreatingAnnotation(row)).rows;
+    this.changeDetectorRef.detectChanges();
   }
 
   async onItemClick({ model, event }: { model: ItemModel, event: MouseEvent }) {
@@ -102,10 +107,10 @@ export class ItemListComponent implements OnInit, OnDestroy {
       let tab: chrome.tabs.Tab;
       if (event.ctrlKey) {
         tab = await chrome.tabs.create({ index: currentTab.index + 1, url: model.urlWithoutMeta.toString(), active: true });
-        tab.id && this.appService.setInitialRoutesAfterNavigation(tab.id, this.route.snapshot.url.map(seg => seg.path), model.id, this.model?.rows.length as number);
+        tab.id && this.appService.setInitialRoutesAfterNavigation(tab.id, this.route.snapshot.url.map(seg => seg.path), model.id, this.model?.length as number);
       } else {
         currentTab.id && chrome.tabs.sendMessage(currentTab.id, { type: 7, data: model.urlWithoutMeta.toString() });
-        currentTab.id && this.appService.setInitialRoutesAfterNavigation(currentTab.id, this.route.snapshot.url.map(seg => seg.path), model.id, this.model?.rows.length as number);
+        currentTab.id && this.appService.setInitialRoutesAfterNavigation(currentTab.id, this.route.snapshot.url.map(seg => seg.path), model.id, this.model?.length as number);
       }
     }
   }
@@ -118,35 +123,21 @@ export class ItemListComponent implements OnInit, OnDestroy {
   }
 
   private async fetchModel(showItemCount: number) {
-    this.model = await this.annotationFetchService.fetchList();
-    let response = this.annotationFetchService.requestLazyLoading(showItemCount);
-    this.model = response;
+    let list = await this.annotationFetchService.fetchList();
+    this.annotationFetchService.requestLazyLoading(showItemCount);
     this.annotationFetchService.applyFilter(this.keyword);
     this.updateSort();
+    this.model = list.rows;
+    this.changeDetectorRef.detectChanges();
   }
 
   private async showMore(length: number) {
     let response = this.annotationFetchService.requestLazyLoading(length);
-    this.model = response;
+    this.model = response.rows;
     this.annotationFetchService.applyFilter(this.keyword);
     this.updateSort();
   }
 
-  private onItemAddFromHeader(row: _Types.AnnotationsResponse.Row) {
-    const preLoad = 5; //five items with new one.
-    let length = ((this.model?.rows.filter(r => r.display).length ?? 0) + preLoad);
-    this.fetchModel(length);
-    // if (this.groupId === row.group && this.model?.rows) {
-    //   const item = row as ItemModel;
-    //   item.itemType = (row.target.some(t => !!t.selector)) ? ItemType.Annotation : ItemType.PageNote;
-    //   this.model.total++;
-    //   this.model.rows.push(item);
-    //   updateSomeProperties(item);
-    //   this.annotationFetchService.applyFilter(this.keyword);
-    //   this.changeDetectorRef.detectChanges();
-    //   this.scrollToBotton();
-    // }
-  }
 
   private scrollToBotton() {
     setTimeout(() => this.hostElement.nativeElement.scrollTop = this.hostElement.nativeElement.scrollHeight, 100);
@@ -169,7 +160,7 @@ export class ItemListComponent implements OnInit, OnDestroy {
     this.updateSort();
   }
 
-  private updateSort(){
+  private updateSort() {
     switch (this.exclusiveChip) {
       case ExclusiveChipType.NONE:
         this.annotationFetchService.applySort("updated");

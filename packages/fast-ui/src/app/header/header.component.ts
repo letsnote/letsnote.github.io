@@ -13,6 +13,8 @@ import { HeaderObserverService } from './header-observer.service';
 import { FormBuilder, FormControl } from '@angular/forms';
 import { rejects } from 'assert';
 import { HeaderService } from './header.service';
+import { AppService } from '../app.service';
+import { AnnotationService } from '../service/annotation.service';
 
 @Component({
   selector: 'header',
@@ -56,7 +58,8 @@ export class HeaderComponent implements OnInit {
 
   constructor(public config: ConfigService, private router: Router, private extensionService: ExtensionService, public observer: HeaderObserverService,
     private formBuilder: FormBuilder,
-    private headerService: HeaderService) {
+    private headerService: HeaderService,
+    private annotationService: AnnotationService) {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         this.group = undefined;
@@ -142,53 +145,57 @@ export class HeaderComponent implements OnInit {
    * @param groupId 
    */
   async onNewNote(groupId?: string, urlParameter?: string) {
-    const profile = await getProfile(this.config.key);
-    const group = groupId ?? this.group?.id as string;
-    chrome?.tabs?.query({ active: true, currentWindow: true }, async (tabs) => {
-      const tab = tabs[0];
-      if (tab && tab.id && tab.title && tab.url) {
-        const tabId = tab.id;
-        const title = tab.title;
-        const url = urlParameter ?? tab.url;
-        const favicon = tab.favIconUrl;
-        const fragment = await new Promise<
-          | {
-            fullUrl: string;
-            fragment: TextFragment;
-            textDirectiveParameters: string;
-            selectedText: string;
-          }
-          | undefined
-        >((resolve) => {
-          chrome.tabs.sendMessage(tabId, { type: 1 }, (res) => {
-            resolve(res);
-          });
-        });
-        let meta = {};
-        if (favicon) meta = { ...meta, favicon };
-        if (fragment?.selectedText) meta = { ...meta, selectedText: fragment.selectedText };
-        const newUrl = composeUrl(url, {
-          metaDirectiveParameter: JSON.stringify(meta),
-          textDirectiveParameter: fragment?.textDirectiveParameters,
-        });
-        const row = await createAnnotations(this.config.key, {
-          group,
-          tags: [],
-          text: '',
-          user: profile.userid,
-          document: { title: [title] },
-          uri: newUrl?.url.toString() ?? url,
-          target: [],
-          references: [],
-          permissions: {
-            read: [],
-            update: [profile.userid],
-            delete: [profile.userid],
-          },
-        });
-        this.observer.pushNewNote(row);
-      }
-    });
+    return this.annotationService.createNewAnnotation(
+      this.group
+      , groupId
+      , urlParameter);
+    // const profile = await getProfile(this.config.key);
+    // const group = groupId ?? this.group?.id as string;
+    // chrome?.tabs?.query({ active: true, currentWindow: true }, async (tabs) => {
+    //   const tab = tabs[0];
+    //   if (tab && tab.id && tab.title && tab.url) {
+    //     const tabId = tab.id;
+    //     const title = tab.title;
+    //     const url = urlParameter ?? tab.url;
+    //     const favicon = tab.favIconUrl;
+    //     const fragment = await new Promise<
+    //       | {
+    //         fullUrl: string;
+    //         fragment: TextFragment;
+    //         textDirectiveParameters: string;
+    //         selectedText: string;
+    //       }
+    //       | undefined
+    //     >((resolve) => {
+    //       chrome.tabs.sendMessage(tabId, { type: 1 }, (res) => {
+    //         resolve(res);
+    //       });
+    //     });
+    //     let meta = {};
+    //     if (favicon) meta = { ...meta, favicon };
+    //     if (fragment?.selectedText) meta = { ...meta, selectedText: fragment.selectedText };
+    //     const newUrl = composeUrl(url, {
+    //       metaDirectiveParameter: JSON.stringify(meta),
+    //       textDirectiveParameter: fragment?.textDirectiveParameters,
+    //     });
+    //     const row = await createAnnotations(this.config.key, {
+    //       group,
+    //       tags: [],
+    //       text: '',
+    //       user: profile.userid,
+    //       document: { title: [title] },
+    //       uri: newUrl?.url.toString() ?? url,
+    //       target: [],
+    //       references: [],
+    //       permissions: {
+    //         read: [],
+    //         update: [profile.userid],
+    //         delete: [profile.userid],
+    //       },
+    //     });
+    //     this.observer.pushNewNote(row);
+    //   }
+    // });
   }
 
   ngOnInit(): void {
@@ -231,10 +238,10 @@ export class HeaderComponent implements OnInit {
           }
           return b;
         });
-        console.debug("그룹명이 업데이트 되었습니다.");
-        this.observer.pushGroupNameUpdate(id, newName);
-        this.displayRenameDialog = false;
       }
+      this.observer.pushGroupNameUpdate(id, newName);
+      console.debug("그룹명이 업데이트 되었습니다.");
+      this.displayRenameDialog = false;
     }, () => {
       console.debug("그룹명 업데이트에 실패하였습니다.");
       this.displayRenameDialog = false;

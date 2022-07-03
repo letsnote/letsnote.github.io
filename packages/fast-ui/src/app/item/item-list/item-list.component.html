@@ -5,11 +5,11 @@
         <custom-chip [label]="'생성순'"  [toggle]="exclusiveChip === ExclusiveChipType.CREATED"
          (toggle)="onToggle(ExclusiveChipType.CREATED, $event)"></custom-chip>
     </div>
-    <ng-container *ngFor="let i of model?.rows">
+    <ng-container *ngFor="let i of model">
         <item [model]="i" (finishEditing)="onFinishEditing($event)" #item (itemDeleteClick)="onItemDeleteClick($event)"
             *ngIf="i.display" (itemClick)="onItemClick($event)"></item>
     </ng-container>
-    <ng-container *ngFor="let i of model?.rows">
+    <ng-container *ngFor="let i of model">
         <div #skeleton *ngIf="!(i.display) && (keyword??'') == ''">
             <p-skeleton height="5rem" styleClass="mb-2"></p-skeleton>
         </div>
