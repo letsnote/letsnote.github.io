@@ -54,11 +54,11 @@ export class ItemComponent implements OnInit, OnChanges {
 
   onTryEdit() {
     this.noteBoxMode = NoteBoxMode.Edit;
-    this.changeDetector.markForCheck();
+    this.changeDetector.detectChanges();
     setTimeout(() => {
       this.textarea?.nativeElement.focus();
       this.scrollService.restorePosition();
-    }, 0);
+    }, 100);
   }
 
   onStopEditing() {

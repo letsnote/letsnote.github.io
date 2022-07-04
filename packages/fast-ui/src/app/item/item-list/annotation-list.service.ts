@@ -92,6 +92,7 @@ export class AnnotationListService {
   }
 
   requestLazyLoading(length: number) {
+    this.applySort();
     this.lazyLoadedLength = length;
     this.annotations.rows.forEach((row, i) => {
       if (i < length) {

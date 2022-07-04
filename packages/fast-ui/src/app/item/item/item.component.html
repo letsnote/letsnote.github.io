@@ -19,8 +19,8 @@
                 <img src="{{model.favicon}}">
             </div>
         </a>
-        <div class="spliter" *ngIf="(model.text && model.text.length > 0) || noteBoxMode === NoteBoxMode.Edit"></div>
-        <div class="note-box" *ngIf="(model.text && model.text.length > 0) || noteBoxMode === NoteBoxMode.Edit" (touch)="onTryEdit()"
+        <div class="spliter" *ngIf="(model.text && model.text.length > 0) || (noteBoxMode === NoteBoxMode.Edit)"></div>
+        <div class="note-box" *ngIf="(model.text && model.text.length > 0) || (noteBoxMode === NoteBoxMode.Edit)" (touch)="onTryEdit()"
             (dblclick)="onTryEdit()">
             <markdown *ngIf="noteBoxMode  === NoteBoxMode.View" ngPreserveWhitespaces>
                 {{model.text}}

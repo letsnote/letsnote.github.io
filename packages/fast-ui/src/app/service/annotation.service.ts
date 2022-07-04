@@ -19,13 +19,22 @@ export class AnnotationService {
     , urlParameter?: string) {
     const profile = await getProfile(this.config.key);
     const group = groupId ?? groupModel?.id as string;
-    chrome?.tabs?.query({ active: true, currentWindow: true }, async (tabs) => {
+    chrome?.tabs?.query({ active: true, lastFocusedWindow: true }, async (tabs) => {
       const tab = tabs[0];
-      if (tab && tab.id && tab.title && tab.url) {
+      let pageInfo: {title: string, href: string, favicon: string} | undefined = await new Promise(resolve => {
+        if(tab?.id){
+          chrome.tabs.sendMessage(tab.id, { type: 10 }, (res) => {
+            resolve(res);
+          });
+        }else{
+          resolve(undefined);
+        }
+      });
+      if (tab && tab.id) {
         const tabId = tab.id;
-        const title = tab.title;
-        const url = urlParameter ?? tab.url;
-        const favicon = tab.favIconUrl;
+        const title = tab.title ?? pageInfo?.title ?? '';
+        const url = urlParameter ?? tab.url ?? pageInfo?.href ?? '';
+        const favicon = tab.favIconUrl ?? pageInfo?.favicon ?? '';
         const fragment = await new Promise<
           | {
             fullUrl: string;

@@ -15,6 +15,7 @@ import { rejects } from 'assert';
 import { HeaderService } from './header.service';
 import { AppService } from '../app.service';
 import { AnnotationService } from '../service/annotation.service';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'header',
@@ -56,7 +57,7 @@ export class HeaderComponent implements OnInit {
 
   displayRenameDialog = false;
 
-  constructor(public config: ConfigService, private router: Router, private extensionService: ExtensionService, public observer: HeaderObserverService,
+  constructor(private location: Location, public config: ConfigService, private router: Router, private extensionService: ExtensionService, public observer: HeaderObserverService,
     private formBuilder: FormBuilder,
     private headerService: HeaderService,
     private annotationService: AnnotationService) {
@@ -149,53 +150,6 @@ export class HeaderComponent implements OnInit {
       this.group
       , groupId
       , urlParameter);
-    // const profile = await getProfile(this.config.key);
-    // const group = groupId ?? this.group?.id as string;
-    // chrome?.tabs?.query({ active: true, currentWindow: true }, async (tabs) => {
-    //   const tab = tabs[0];
-    //   if (tab && tab.id && tab.title && tab.url) {
-    //     const tabId = tab.id;
-    //     const title = tab.title;
-    //     const url = urlParameter ?? tab.url;
-    //     const favicon = tab.favIconUrl;
-    //     const fragment = await new Promise<
-    //       | {
-    //         fullUrl: string;
-    //         fragment: TextFragment;
-    //         textDirectiveParameters: string;
-    //         selectedText: string;
-    //       }
-    //       | undefined
-    //     >((resolve) => {
-    //       chrome.tabs.sendMessage(tabId, { type: 1 }, (res) => {
-    //         resolve(res);
-    //       });
-    //     });
-    //     let meta = {};
-    //     if (favicon) meta = { ...meta, favicon };
-    //     if (fragment?.selectedText) meta = { ...meta, selectedText: fragment.selectedText };
-    //     const newUrl = composeUrl(url, {
-    //       metaDirectiveParameter: JSON.stringify(meta),
-    //       textDirectiveParameter: fragment?.textDirectiveParameters,
-    //     });
-    //     const row = await createAnnotations(this.config.key, {
-    //       group,
-    //       tags: [],
-    //       text: '',
-    //       user: profile.userid,
-    //       document: { title: [title] },
-    //       uri: newUrl?.url.toString() ?? url,
-    //       target: [],
-    //       references: [],
-    //       permissions: {
-    //         read: [],
-    //         update: [profile.userid],
-    //         delete: [profile.userid],
-    //       },
-    //     });
-    //     this.observer.pushNewNote(row);
-    //   }
-    // });
   }
 
   ngOnInit(): void {

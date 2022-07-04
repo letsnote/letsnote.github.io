@@ -83,7 +83,6 @@ export class GroupListComponent implements OnInit, OnDestroy {
   }
 
   onGroupClick(model: GroupModel) {
-    // this.router.navigate(['groups'], { replaceUrl: true });
     this.router.navigate(['groups', model.id], { replaceUrl: true });
   }
 

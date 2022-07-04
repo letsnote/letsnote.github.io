@@ -67,6 +67,8 @@ function entrypoint() {
           shell.show();
           chrome.runtime.sendMessage({ type: Action.SHOWN });
           sendResponse({});
+        } else if (message.type == Action.PAGE_INFORMATION) {
+          sendResponse({href: document.location.href, title: document.title, favicon: document.location.origin+'/favicon.ico'});
         }
       } else 
         sendResponse({});
