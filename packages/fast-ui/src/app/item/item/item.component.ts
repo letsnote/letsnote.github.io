@@ -11,7 +11,9 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
+import { getGroups } from 'hypothesis-data';
 import { ConfirmationService, MenuItem } from 'primeng/api';
+import { ConfigService } from 'src/app/setting/config.service';
 import { composeUrl } from '../../fragment/fragment';
 import { ItemListScrollService } from '../item-list/item-list-scroll.service';
 
@@ -27,7 +29,8 @@ export class ItemComponent implements OnInit, OnChanges {
     private hostElementRef: ElementRef,
     private confirmationService: ConfirmationService,
     private changeDetector: ChangeDetectorRef,
-    private scrollService: ItemListScrollService
+    private scrollService: ItemListScrollService,
+    private configService: ConfigService
   ) { }
   NoteBoxMode = NoteBoxMode;
   noteBoxMode: NoteBoxMode = NoteBoxMode.View;
@@ -125,7 +128,19 @@ export class ItemComponent implements OnInit, OnChanges {
           this.onTryEdit();
         },
       },
+      {
+        label: '그룹 이동',
+        command: (event) => {
+          getGroups()
+          this.displayMoveGroupDialog = true;
+        },
+      },
     ];
+  }
+
+  displayMoveGroupDialog = false;
+  onMoveGroup(){
+    this.displayMoveGroupDialog = false;
   }
 }
 
