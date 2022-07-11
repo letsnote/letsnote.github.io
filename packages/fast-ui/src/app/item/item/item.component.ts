@@ -11,7 +11,8 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
-import { getGroups } from 'hypothesis-data';
+import { FormControl, RequiredValidator, Validators } from '@angular/forms';
+import { createAnnotations, deleteAnnotation, getGroups, updateAnnotation } from 'hypothesis-data';
 import { ConfirmationService, MenuItem } from 'primeng/api';
 import { ConfigService } from 'src/app/setting/config.service';
 import { composeUrl } from '../../fragment/fragment';
@@ -45,6 +46,8 @@ export class ItemComponent implements OnInit, OnChanges {
   textarea: ElementRef | undefined;
   @Output('itemDeleteClick')
   itemDeleteEmitter = new EventEmitter();
+  @Output('itemMoveClick')
+  itemMoveEmitter = new EventEmitter<{previous: ItemModel, groupToMove: string}>();
 
   async onLinkClick(click: MouseEvent) {
     click.preventDefault();
@@ -78,14 +81,21 @@ export class ItemComponent implements OnInit, OnChanges {
     {
       label: '항목 삭제',
       command: (event) => {
-        this.onItemDeleteClick(event);
+        this.onItemDeleteMenuClick(event);
       },
     },
+    {
+      label: '그룹 이동',
+      command: async (event) => {
+        this.onItemMoveMenuClick(event);
+      },
+    }
+    
   ];
 
   contextMenuItems: MenuItem[] = [];
 
-  onItemDeleteClick(event: any) {
+  onItemDeleteMenuClick(event: any) {
     const hostElement = this.hostElementRef?.nativeElement;
     if (!hostElement) return;
     (event.originalEvent as Event).stopPropagation();
@@ -100,6 +110,22 @@ export class ItemComponent implements OnInit, OnChanges {
         //reject action
       },
     });
+    this.changeDetector.detectChanges();
+  }
+
+  async onItemMoveMenuClick(event: any){
+    this.displayMoveGroupDialog = true;
+    this.moveGroupDialogStatus = 'loading';
+    this.groupList = [];
+    try{
+      let groups = await getGroups(this.configService.key);
+      this.groupList = groups.map(g => ({id: g.id, name: g.name}));
+      this.selectedGroupToMoveForm.setValue(this.model?.group);
+    }catch(e){
+      this.moveGroupDialogStatus = 'fail';
+    }finally{
+      this.moveGroupDialogStatus = 'loaded';
+    }
     this.changeDetector.detectChanges();
   }
 
@@ -128,20 +154,29 @@ export class ItemComponent implements OnInit, OnChanges {
           this.onTryEdit();
         },
       },
-      {
-        label: '그룹 이동',
-        command: (event) => {
-          getGroups()
-          this.displayMoveGroupDialog = true;
-        },
-      },
     ];
   }
 
-  displayMoveGroupDialog = false;
-  onMoveGroup(){
+  async onMoveGroupCkick(){
     this.displayMoveGroupDialog = false;
+    if(this.model
+        && this.selectedGroupToMoveForm.valid
+        && this.model.group != this.selectedGroupToMoveForm.value){
+      this.itemMoveEmitter.emit({previous: this.model
+        , groupToMove: this.selectedGroupToMoveForm.value});
+    }
+    this.changeDetector.detectChanges();
   }
+
+  onGroupMoveDialogClose(){
+    this.displayMoveGroupDialog = false;
+    this.changeDetector.detectChanges();
+  }
+
+  selectedGroupToMoveForm = new FormControl(undefined, [Validators.required]);
+  groupList: {id: string, name: string}[] = [];
+  displayMoveGroupDialog = false;
+  moveGroupDialogStatus: 'loading' | 'fail' | 'loaded' = 'loaded' ;
 }
 
 export interface ItemModel extends _Types.AnnotationsResponse.Row {

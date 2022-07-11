@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { deleteAnnotation, updateAnnotation } from 'hypothesis-data';
+import { createAnnotations, deleteAnnotation, updateAnnotation } from 'hypothesis-data';
 import { debounceTime, Subject, Subscription } from 'rxjs';
 import { AppService } from 'src/app/app.service';
 import { HeaderObserverService } from 'src/app/header/header-observer.service';
@@ -92,6 +92,13 @@ export class ItemListComponent implements OnInit, OnDestroy {
   async onItemDeleteClick(itemModel: ItemModel) {
     this.model = (await this.annotationFetchService
       .deleteAnnotation(this.config.key, itemModel.id)).rows;
+    this.changeDetectorRef.detectChanges();
+  }
+
+  async onItemMoveClick(itemModel: {previous: ItemModel, groupToMove: string}) {
+    let {previous, groupToMove} = itemModel;
+    this.model = (await this.annotationFetchService.deleteAnnotation(this.config.key, previous.id)).rows;
+    await this.annotationService.copyNewAnnotaion({...previous, group: groupToMove});
     this.changeDetectorRef.detectChanges();
   }
 

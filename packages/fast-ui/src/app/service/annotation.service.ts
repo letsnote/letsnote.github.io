@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { TextFragment } from 'text-fragments-polyfill/dist/fragment-generation-utils';
 import { composeUrl } from '../fragment/fragment';
 import { GroupModel } from '../group/group.component';
+import { ItemModel } from '../item/item/item.component';
 import { ConfigService } from '../setting/config.service';
 
 @Injectable({
@@ -12,7 +13,17 @@ import { ConfigService } from '../setting/config.service';
 export class AnnotationService {
 
   constructor(private config: ConfigService) { }
-  
+
+  async copyNewAnnotaion(model: ItemModel) {
+    let row = await createAnnotations(this.config.key,
+      {
+        ...model
+        , created: new Date().toISOString()
+        , updated: new Date().toISOString()
+      });
+    this.pushNewNote(row);
+  }
+
   async createNewAnnotation(
     groupModel?: GroupModel
     , groupId?: string
@@ -21,12 +32,12 @@ export class AnnotationService {
     const group = groupId ?? groupModel?.id as string;
     chrome?.tabs?.query({ active: true, lastFocusedWindow: true }, async (tabs) => {
       const tab = tabs[0];
-      let pageInfo: {title: string, href: string, favicon: string} | undefined = await new Promise(resolve => {
-        if(tab?.id){
+      let pageInfo: { title: string, href: string, favicon: string } | undefined = await new Promise(resolve => {
+        if (tab?.id) {
           chrome.tabs.sendMessage(tab.id, { type: 10 }, (res) => {
             resolve(res);
           });
-        }else{
+        } else {
           resolve(undefined);
         }
       });
@@ -74,11 +85,11 @@ export class AnnotationService {
       }
     });
   }
-  
+
   private newNoteSubject = new Subject<_Types.AnnotationsResponse.Row>();
   readonly newNoteObserverble = this.newNoteSubject.asObservable();
-  
-  private pushNewNote(row: _Types.AnnotationsResponse.Row){
+
+  private pushNewNote(row: _Types.AnnotationsResponse.Row) {
     this.newNoteSubject.next(row);
   }
 

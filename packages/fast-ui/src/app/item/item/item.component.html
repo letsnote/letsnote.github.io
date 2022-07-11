@@ -34,18 +34,22 @@
     <p-confirmPopup></p-confirmPopup>
 </ng-container>
 
-<p-dialog header="그룹 이동" [(visible)]="displayMoveGroupDialog" [modal]="true" [style]="{width: '90vw'}" [draggable]="false"
+<p-dialog header="그룹 이동" 
+    [(visible)]="displayMoveGroupDialog" 
+    [closable]="false"
+    [modal]="true" 
+    [style]="{width: '90vw', minHeight: '70%'}" 
+    [draggable]="false"
     [resizable]="false">
-    <select name="pets" id="pet-select">
-        <option value="">--Please choose an option--</option>
-        <option value="dog">Dog</option>
-        <option value="cat">Cat</option>
-        <option value="hamster">Hamster</option>
-        <option value="parrot">Parrot</option>
-        <option value="spider">Spider</option>
-        <option value="goldfish">Goldfish</option>
-    </select>
+    <p-dropdown [options]="groupList" placeholder="{{
+        moveGroupDialogStatus === 'loading' ? '그룹을 불러오는 중입니다.' : (
+            moveGroupDialogStatus === 'fail' ? '그룹을 불러오는 중 실패하였습니다.' : (
+                '그룹을 선택해주세요.'
+            )
+        )
+    }}" [formControl]="selectedGroupToMoveForm" optionLabel="name" optionValue="id"></p-dropdown>
     <ng-template pTemplate="footer">
-        <p-button icon="pi pi-check" (click)="onMoveGroup()" label="저장" styleClass="p-button-text"></p-button>
+        <p-button icon="pi pi-check" (click)="onMoveGroupCkick()" label="이동" styleClass="p-button-text"></p-button>
+        <p-button icon="pi pi-times" (click)="onGroupMoveDialogClose()" label="닫기" styleClass="p-button-danger p-button-text"></p-button>
     </ng-template>
 </p-dialog>

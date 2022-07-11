@@ -11,12 +11,12 @@ import {InputTextareaModule} from 'primeng/inputtextarea';
 import {ContextMenuModule} from 'primeng/contextmenu';
 import {ConfirmPopupModule} from 'primeng/confirmpopup';
 import {SkeletonModule} from 'primeng/skeleton';
+import {DropdownModule} from 'primeng/dropdown';
 import {DialogModule} from 'primeng/dialog';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ItemComponent } from './item/item.component';
 import { CustomChipModule } from '../custom-chip/custom-chip.module';
-
 @NgModule({
   declarations: [
     ItemAppComponent,
@@ -35,6 +35,7 @@ import { CustomChipModule } from '../custom-chip/custom-chip.module';
     ReactiveFormsModule,
     ConfirmPopupModule,
     SkeletonModule,
+    DropdownModule,
     DialogModule,
     CustomChipModule,
     MarkdownModule.forRoot({ loader: HttpClient }),
