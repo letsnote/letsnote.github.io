@@ -3,9 +3,7 @@ import { GroupModel } from '../group/group.component';
 import * as api from 'hypothesis-data'
 import { Router } from '@angular/router';
 import { ConfigService } from '../setting/config.service';
-import { MenuItem } from 'primeng/api';
 import { deleteGroup } from 'hypothesis-data';
-import { ConfirmationService } from 'primeng/api';
 import { ExtensionService } from '../fragment/extension.service';
 import { HeaderObserverService } from '../header/header-observer.service';
 import { Subscription } from 'rxjs';
@@ -31,20 +29,43 @@ export class GroupListComponent implements OnInit, OnDestroy {
       this.keyword = keyword;
       this.applyKeywordToGroupList();
     });
-    this.subscriptions.push(s);
+    let s1 = this.groupListScrollService.scrollObservable.subscribe((lastScrollPosition) => {
+      this.updateLastScrollPosition(lastScrollPosition);
+    });
+    this.observeGroupListScroll();
+    this.subscriptions.push(s, s1);
   }
 
   ngOnInit() {
     this.loadGroups();
+    //A ngOnInit method that is invoked immediately after the default change detector has checked the directive's data-bound properties for the first time
+    let s1 = this.appService.onChangeComponentRendering.subscribe((enabled) => {
+      this.enabled = enabled;
+      this.changeDetectRef.detectChanges();
+      console.debug(`lastScrollTop: ${this.lastScrollPosition}, enabled: ${enabled}`);
+      if(enabled){
+        this.hostElement.nativeElement.scrollTop = this.lastScrollPosition;
+        this.observeGroupListScroll();
+      }else
+        this.unobserveGroupListScroll();
+    });
+    this.subscriptions.push(s1);
+  }
+
+  lastScrollPosition: number = 0;
+
+  private updateLastScrollPosition(position: number){
+    this.lastScrollPosition = position;
+  }
+
+  private observeGroupListScroll(){
     this.hostElement.nativeElement.onscroll = () => {
       this.groupListScrollService.updateScroll(this.hostElement.nativeElement.scrollTop);
     };
-    //A ngOnInit method that is invoked immediately after the default change detector has checked the directive's data-bound properties for the first time
-    let s2 = this.appService.onChangeComponentRendering.subscribe((enabled) => {
-      this.enabled = enabled;
-      this.changeDetectRef.detectChanges();
-    });
-    this.subscriptions.push(s2);
+  }
+
+  private unobserveGroupListScroll(){
+    this.hostElement.nativeElement.onscroll = () => {};
   }
 
   ngOnDestroy(): void {
@@ -80,6 +101,7 @@ export class GroupListComponent implements OnInit, OnDestroy {
     this.applyKeywordToGroupList();
     this.onGroupListUpdate();
     this.changeDetectRef.detectChanges();
+    this.hostElement.nativeElement.scrollTop = this.lastScrollPosition;
   }
 
   onGroupClick(model: GroupModel) {
@@ -111,9 +133,4 @@ export class GroupListComponent implements OnInit, OnDestroy {
 
 export interface GroupListModel {
   groups: GroupModel[];
-}
-
-interface ItemCountCache {
-  date: Date,
-  data: { [id: string]: number };
 }

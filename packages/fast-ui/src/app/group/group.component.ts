@@ -1,7 +1,7 @@
 import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { ContextMenu } from 'primeng/contextmenu';
-import { Subscription } from 'rxjs';
+import { skip, Subscription } from 'rxjs';
 import { GroupListScrollService } from '../group-list/group-list-scroll.service';
 import { HeaderObserverService } from '../header/header-observer.service';
 import { HeaderService } from '../header/header.service';
@@ -95,8 +95,8 @@ export class GroupComponent implements OnInit, OnDestroy {
 
   onShow(){    
     this.scrollObserver?.unsubscribe();
-    this.scrollObserver = this.groupListScrollService.scrollObservable.subscribe((top) => {
-          this.menu?.hide();
+    this.scrollObserver = this.groupListScrollService.scrollObservable.pipe(skip(1)).subscribe((top) => {
+      this.menu?.hide();
     });
   }
 

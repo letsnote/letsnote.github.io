@@ -19,7 +19,7 @@ export class AppComponent implements AfterViewInit {
   @ViewChild("outer")
   outerElementRef: ElementRef | undefined;
 
-  constructor(private config: ConfigService, private extension: ExtensionService, private router: Router, private appService: AppService, private route: ActivatedRoute
+  constructor(private hostElement: ElementRef, private config: ConfigService, private extension: ExtensionService, private router: Router, private appService: AppService, private route: ActivatedRoute
     , private ngZone: NgZone) {
   }
 
@@ -49,9 +49,11 @@ export class AppComponent implements AfterViewInit {
         if (sender.tab?.id === currentTab.id) {
           if (msg.type === 5){ // SHOWN
             this.appService.enableComponentRendering();
+            // this.appService.updateVisible(true);
             sendResponse();
           }else if (msg.type === 4){
             this.appService.disableComponentRendering();
+            // this.appService.updateVisible(false);
             sendResponse();
           }
         }

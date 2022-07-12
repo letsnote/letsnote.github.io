@@ -47,4 +47,11 @@ export class AppService {
 
   private _onChangeComponentRendering = new ReplaySubject<boolean>();
   onChangeComponentRendering = this._onChangeComponentRendering.asObservable();
+
+  // updateVisible(visible: boolean){
+  //   this.onVisible.next(visible);
+  // }
+
+  // private onVisible = new ReplaySubject<boolean>(1);
+  // onVisibleObservable = this.onVisible.asObservable();
 }
