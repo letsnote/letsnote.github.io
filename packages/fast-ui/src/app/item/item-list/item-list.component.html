@@ -6,7 +6,7 @@
          (toggle)="onToggle(ExclusiveChipType.CREATED, $event)"></custom-chip>
     </div>
     <ng-container *ngFor="let i of model">
-        <item [model]="i" (finishEditing)="onFinishEditing($event)" #item (itemDeleteClick)="onItemDeleteClick($event)"
+        <item [model]="i" [editRequest]="editRequestId === i.id ? 'request' : 'ready'" (finishEditing)="onFinishEditing($event)" #item (itemDeleteClick)="onItemDeleteClick($event)"
             *ngIf="i.display" (itemClick)="onItemClick($event)"
             (itemMoveClick)="onItemMoveClick($event)"></item>
     </ng-container>

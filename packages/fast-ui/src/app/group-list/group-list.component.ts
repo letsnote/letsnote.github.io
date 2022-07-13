@@ -3,7 +3,7 @@ import { GroupModel } from '../group/group.component';
 import * as api from 'hypothesis-data'
 import { Router } from '@angular/router';
 import { ConfigService } from '../setting/config.service';
-import { deleteGroup } from 'hypothesis-data';
+import { deleteGroup, getProfile } from 'hypothesis-data';
 import { ExtensionService } from '../fragment/extension.service';
 import { HeaderObserverService } from '../header/header-observer.service';
 import { Subscription } from 'rxjs';
@@ -36,7 +36,14 @@ export class GroupListComponent implements OnInit, OnDestroy {
     this.subscriptions.push(s, s1);
   }
 
-  ngOnInit() {
+  mode: 'ready' | 'no_key' = 'no_key';
+
+  async ngOnInit() {
+    if(this.config.key){
+      let profile = await getProfile(this.config.key);
+      if(profile.userid)
+        this.mode = 'ready';
+    }
     this.loadGroups();
     //A ngOnInit method that is invoked immediately after the default change detector has checked the directive's data-bound properties for the first time
     let s1 = this.appService.onChangeComponentRendering.subscribe((enabled) => {
@@ -93,7 +100,7 @@ export class GroupListComponent implements OnInit, OnDestroy {
   }
 
   private async loadGroups() {
-    const groups = await api.getGroups(this.config.key);
+    const groups = (await api.getGroups(this.config.key)).filter(g => g.name.toLowerCase() !== 'public');
     this.model = { groups: groups.map(g => ({ ...g })) };
     for (let group of this.model.groups) {
       group.itemCount = await this.getItemCount(group);

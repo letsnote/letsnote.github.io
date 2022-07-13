@@ -1,6 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { AppService } from '../app.service';
 import { ConfigService } from './config.service';
 
 @Component({
@@ -17,7 +19,8 @@ export class SettingComponent implements OnInit, OnDestroy {
     width: this.widthControl,
   });
   subscriptions: Subscription[] = [];
-  constructor(private config: ConfigService) {
+  constructor(config: ConfigService, private appService: AppService,
+    private route: ActivatedRoute) {
     this.keyControl.setValue(config.key);
     let s = this.keyControl.valueChanges.subscribe((value) => {
       config.key = value;
@@ -36,9 +39,17 @@ export class SettingComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    
+
   }
   ngOnDestroy(): void {
     this.subscriptions.forEach(s => s.unsubscribe());
+  }
+
+  async onKeyGetClick(event: MouseEvent) {
+    event.preventDefault();
+    const currentTab = await chrome.tabs.getCurrent();
+    let tab: chrome.tabs.Tab;
+    tab = await chrome.tabs.create({ index: currentTab.index + 1, url: 'https://hypothes.is/account/developer', active: true });
+    // tab.id && this.appService.setInitialRoutesAfterNavigation(tab.id, this.route.snapshot.url.map(seg => seg.path), model.id, this.model?.length as number);
   }
 }

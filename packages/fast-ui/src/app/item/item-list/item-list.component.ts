@@ -6,7 +6,7 @@ import { AppService } from 'src/app/app.service';
 import { HeaderObserverService } from 'src/app/header/header-observer.service';
 import { AnnotationService } from 'src/app/service/annotation.service';
 import { ConfigService } from 'src/app/setting/config.service';
-import { ItemComponent, ItemModel, ItemType, updateSomeProperties } from '../item/item.component';
+import { ItemComponent, ItemModel } from '../item/item.component';
 import { AnnotationListService } from './annotation-list.service';
 import { ItemListModel } from './item-list-model';
 import { ItemListScrollService } from './item-list-scroll.service';
@@ -20,7 +20,8 @@ export class ItemListComponent implements OnInit, OnDestroy {
   model: ItemModel[] = [];
   groupId!: string;
   exclusiveChip = ExclusiveChipType.UPDATED;
-
+  
+  editRequestId: string | undefined;
   keyword: string = '';
   private subscriptions: Subscription[] = [];
   @ViewChildren('item')
@@ -106,6 +107,7 @@ export class ItemListComponent implements OnInit, OnDestroy {
     this.model = (await this.annotationFetchService
       .updateListAfterCreatingAnnotation(row)).rows;
     this.changeDetectorRef.detectChanges();
+    this.editRequestId = row.id;
   }
 
   async onItemClick({ model, event }: { model: ItemModel, event: MouseEvent }) {

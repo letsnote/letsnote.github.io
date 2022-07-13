@@ -46,11 +46,13 @@ export class HeaderComponent implements OnInit {
     newValue: ['']
   });
 
-
   items = [
     {
       label: '새 노트', icon: 'pi pi-plus', command: () => {
-        this.onNewNote(undefined, "EMPTY_SOURCE");
+        if(!this.group)
+          return;
+        const groupId = this.group.id;
+        this.onNewNote(groupId, "EMPTY_SOURCE");
       }
     }
   ];
@@ -104,6 +106,7 @@ export class HeaderComponent implements OnInit {
     extensionService.requestFromContextMenu.subscribe(({ groupId }) => {
       this.onNewNote(groupId);
     });
+    
     this.headerService.renameObservable.subscribe((param: { groupId: string, oldValue: string, newValue?: string }) => {
       this.requestToRenameGroup(param.groupId, param.oldValue, param.newValue);
     });
@@ -145,11 +148,9 @@ export class HeaderComponent implements OnInit {
    * TODO: It should not be here
    * @param groupId 
    */
-  async onNewNote(groupId?: string, urlParameter?: string) {
+  async onNewNote(groupId: string, urlParameter?: string) {
     return this.annotationService.createNewAnnotation(
-      this.group
-      , groupId
-      , urlParameter);
+      groupId, urlParameter);
   }
 
   ngOnInit(): void {

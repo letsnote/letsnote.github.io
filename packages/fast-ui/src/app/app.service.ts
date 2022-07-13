@@ -48,6 +48,41 @@ export class AppService {
   private _onChangeComponentRendering = new ReplaySubject<boolean>();
   onChangeComponentRendering = this._onChangeComponentRendering.asObservable();
 
+  async currentTab() {
+    if(!this.isChrome())
+      return Promise.reject("It's not hosted by the extension");
+    return new Promise<chrome.tabs.Tab>((resolve, reject) => {
+      chrome?.tabs?.query({ active: true, lastFocusedWindow: true },
+        async (tabs) => {
+          const tab = tabs[0];
+          resolve(tab);
+        });
+    });
+  }
+
+  async pageInfo() {
+    if(!this.isChrome())
+      return Promise.reject("It's not hosted by the extension");
+    const tab = await this.currentTab();
+    let pageInfo: { title: string, href: string, favicon: string }
+      = await new Promise((resolve, reject) => {
+        if (tab?.id) {
+          chrome.tabs.sendMessage(tab.id, { type: 10 }, (res) => {
+            resolve(res);
+          });
+        } else {
+          reject();
+        }
+      });
+    return pageInfo;
+  }
+
+  isChrome(){
+    return location.href.includes("chrome-extension");
+  }
+
+  
+
   // updateVisible(visible: boolean){
   //   this.onVisible.next(visible);
   // }

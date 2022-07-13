@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { deleteAnnotation, getAnnotations } from 'hypothesis-data';
 import { composeUrl } from '../../fragment/fragment';
-import { ItemModel, ItemType, updateSomeProperties } from '../item/item.component';
+import { ItemModel, ItemType } from '../item/item.component';
+import { updateSomeProperties } from './annotation-fetch.service';
 import { ItemListModel } from './item-list-model';
 
 export class AnnotationListService {

@@ -38,6 +38,8 @@ export class ItemComponent implements OnInit, OnChanges {
   autoResize = true;
   @Input()
   model: ItemModel | undefined;
+  @Input()
+  editRequest: 'request' | 'complete' | 'ready' = 'ready';
   @Output()
   itemClick = new EventEmitter<{event: MouseEvent, model: ItemModel}>();
   @Output('finishEditing')
@@ -138,6 +140,10 @@ export class ItemComponent implements OnInit, OnChanges {
       const model = changes['model'].currentValue as ItemModel;
       this.updateContextMenu(model);
     }
+    if (changes['editRequest']) {
+      if(this.editRequest == 'request')
+        this.onTryEdit();
+    }
   }
 
   update(){
@@ -196,34 +202,4 @@ export enum ItemType {
 enum NoteBoxMode {
   Edit,
   View,
-}
-
-export function updateSomeProperties(row: ItemModel) {
-  let itemModel = row as ItemModel;
-  const urlResult = composeUrl(itemModel.uri);
-  if (urlResult?.directiveMap) {
-    try {
-      const metaString = urlResult.directiveMap.get('meta');
-      if (metaString) {
-        const meta: { favicon?: string, selectedText?: string } = JSON.parse(metaString);
-        itemModel.favicon = meta.favicon;
-        itemModel.textFragment = meta.selectedText;
-      }
-    } catch (e) {
-      console.debug(e);
-    }
-  }
-
-  // put the text of TextQuoteSelector
-  if (!itemModel.textFragment) {
-    itemModel.textFragment = itemModel?.target?.map(t => t?.selector?.filter(s => s.type === 'TextQuoteSelector').map(s => s.exact).join('\n')).join('\n');
-  }
-
-  if (itemModel.uri.includes('urn:')) {
-    itemModel.urlWithoutMeta = new URL(row.links.html);
-  } else {
-    // Remove the meta directive
-    let urlResultWithoutMeta = composeUrl(itemModel.uri, { metaDirectiveParameter: '' });
-    itemModel.urlWithoutMeta = urlResultWithoutMeta?.url;
-  }
 }

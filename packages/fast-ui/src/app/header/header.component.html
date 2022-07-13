@@ -24,15 +24,12 @@
             <button pButton pRipple type="button" icon="pi pi-plus" label="새 그룹"
                 class="p-button-rounded p-button-text p-button-sm" (click)="onNewGroup()"
                 *ngIf="currentRoute === 0"></button>
-                
+            
             <p-splitButton label="새 페이지 노트" 
-            icon="pi pi-plus" 
-            [model]="items" (onClick)="onNewNote()"
+            icon="pi pi-plus"
+            [model]="items" (onClick)="onNewNote($any(group).id)"
              styleClass="p-button-text p-button-rounded p-button-sm mr-2 mb-2"
                 *ngIf="currentRoute === 1"></p-splitButton>
-            <!-- <button pButton pRipple type="button" icon="pi pi-plus" label="새 페이지 노트"
-                class="p-button-rounded p-button-text p-button-sm" (click)="onNewNote()"
-                *ngIf="currentRoute === 1"></button> -->
         </ng-container>
     </div>
 </div>

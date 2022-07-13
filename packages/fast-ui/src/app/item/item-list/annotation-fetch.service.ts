@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { getAnnotations } from 'hypothesis-data';
 import { composeUrl } from '../../fragment/fragment';
-import { ItemModel, ItemType, updateSomeProperties } from '../item/item.component';
+import { ItemModel, ItemType } from '../item/item.component';
 import { ItemListModel } from './item-list-model';
 
 export class AnnotationFetchService {
@@ -29,5 +29,36 @@ export class AnnotationFetchService {
     });
     this.annotationList.rows.push(...response.rows);
     this.annotationList.total = response.total;
+  }
+  
+}
+
+export function updateSomeProperties(row: ItemModel) {
+  let itemModel = row as ItemModel;
+  const urlResult = composeUrl(itemModel.uri);
+  if (urlResult?.directiveMap) {
+    try {
+      const metaString = urlResult.directiveMap.get('meta');
+      if (metaString) {
+        const meta: { favicon?: string, selectedText?: string } = JSON.parse(metaString);
+        itemModel.favicon = meta.favicon;
+        itemModel.textFragment = meta.selectedText;
+      }
+    } catch (e) {
+      console.debug(e);
+    }
+  }
+
+  // put the text of TextQuoteSelector
+  if (!itemModel.textFragment) {
+    itemModel.textFragment = itemModel?.target?.map(t => t?.selector?.filter(s => s.type === 'TextQuoteSelector').map(s => s.exact).join('\n')).join('\n');
+  }
+
+  if (itemModel.uri.includes('urn:')) {
+    itemModel.urlWithoutMeta = new URL(row.links.html);
+  } else {
+    // Remove the meta directive
+    let urlResultWithoutMeta = composeUrl(itemModel.uri, { metaDirectiveParameter: '' });
+    itemModel.urlWithoutMeta = urlResultWithoutMeta?.url;
   }
 }

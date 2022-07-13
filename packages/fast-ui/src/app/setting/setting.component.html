@@ -1,5 +1,6 @@
 <div [formGroup]="formGroup" class="formGroup">
-    <h4>API Key</h4>
+    <h4>API Key
+        <a (click)="onKeyGetClick($event)" href="https://hypothes.is/account/developer">(찾아보기)</a></h4>
     <input style="width: 100%" type="text" pInputText formControlName="key">
     <h4>Font Size ({{fontSizeControl.value}}px)</h4>
     <!-- <input type="text" pInputText formControlName="fontSize"/> -->

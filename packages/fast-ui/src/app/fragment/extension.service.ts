@@ -3,6 +3,7 @@ import { last, Subject } from 'rxjs';
 import { TextFragment } from 'text-fragments-polyfill/dist/fragment-generation-utils';
 import { GroupListModel } from '../group-list/group-list.component';
 
+//TODO: refactor
 @Injectable({
   providedIn: 'root',
 })

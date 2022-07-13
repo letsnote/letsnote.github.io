@@ -1,4 +1,16 @@
 <ng-container *ngIf="enabled">
-    <group *ngFor="let i of model?.groups" [model]="i" (groupClick)="onGroupClick($event)"
-        (groupDeleteClick)="onGroupDeleteClick($event)" [ngStyle]="{'display': i.disabled ? 'none' : 'inherit'}"></group>
+    <ng-container *ngIf="mode === 'ready'">
+        <group *ngFor="let i of model?.groups" [model]="i" (groupClick)="onGroupClick($event)"
+            (groupDeleteClick)="onGroupDeleteClick($event)" [ngStyle]="{'display': i.disabled ? 'none' : 'inherit'}">
+        </group>
+    </ng-container>
+    <ng-container *ngIf="mode === 'no_key'">
+        <div class="text-center mt-5">
+            API Key가 올바르지 않거나 존재하지 않습니다.
+        </div>
+        <div class="text-center">
+            <a [routerLink]="['setting']">API Key 입력</a>
+        </div>
+    </ng-container>
+
 </ng-container>

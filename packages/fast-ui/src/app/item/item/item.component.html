@@ -4,11 +4,15 @@
             <div class="left">
                 <div>
                     <span>{{model.itemType === 0 ? '주석' : '노트'}}</span>
-                    <span *ngIf="model.urlWithoutMeta !== undefined"><span> in </span>
+                    <span *ngIf="model.urlWithoutMeta !== undefined">
+                        <span> in </span>
                         <span class="hostname">
-                            <i class="pi pi-globe"></i> {{model.urlWithoutMeta.hostname}}</span></span>
+                            <i class="pi pi-globe"></i> 
+                            {{model.urlWithoutMeta.hostname}}
+                        </span>
+                    </span>
                 </div>
-                <div class="font-semibold title">
+                <div class="font-semibold title" *ngIf="model.urlWithoutMeta !== undefined">
                     {{model.document.title?.[0]}}
                 </div>
                 <div class="font-light">
@@ -27,6 +31,9 @@
             </markdown>
             <textarea #textarea (blur)="onStopEditing()" *ngIf="noteBoxMode === NoteBoxMode.Edit" rows="5" pInputTextarea
                 [autoResize]="autoResize" [(ngModel)]="model.text"></textarea>
+        </div>
+        <div class="text-right">
+            {{model.updated | date:'medium'}}
         </div>
 
         <p-contextMenu [target]="box" [model]="contextMenuItems"></p-contextMenu>
