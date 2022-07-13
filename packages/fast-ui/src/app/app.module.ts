@@ -6,9 +6,9 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { HeaderComponent } from './header/header.component';
-import { GroupListComponent } from './group-list/group-list.component';
+// import { GroupListComponent } from './body/group-list/group-list.component';
 // import { ItemComponent } from './item/item-item/item.component';
-import { GroupComponent } from './group/group.component';
+import { GroupComponent } from './body/group/group.component';
 // import { ItemListComponent } from './item/item-list.component';
 import { SettingComponent } from './setting/setting.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -30,8 +30,8 @@ import {SplitButtonModule} from 'primeng/splitbutton';
   declarations: [
     AppComponent,
     HeaderComponent,
-    GroupListComponent,
-    GroupComponent,
+    // GroupListComponent,
+    // GroupComponent,
     SettingComponent,
     RenameComponent
   ],

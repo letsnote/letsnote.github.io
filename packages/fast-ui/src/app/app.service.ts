@@ -1,10 +1,5 @@
 import { Injectable } from '@angular/core';
-import { createAnnotations, getProfile } from 'hypothesis-data';
 import { ReplaySubject, Subject } from 'rxjs';
-import { TextFragment } from 'text-fragments-polyfill/dist/fragment-generation-utils';
-import { composeUrl } from './fragment/fragment';
-import { GroupModel } from './group/group.component';
-import { ConfigService } from './setting/config.service';
 
 @Injectable({
   providedIn: 'root'

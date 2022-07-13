@@ -1,4 +1,4 @@
-<ng-container *ngIf="enabled">
+<ng-container>
     <ng-container *ngIf="mode === 'ready'">
         <group *ngFor="let i of model?.groups" [model]="i" (groupClick)="onGroupClick($event)"
             (groupDeleteClick)="onGroupDeleteClick($event)" [ngStyle]="{'display': i.disabled ? 'none' : 'inherit'}">
@@ -10,6 +10,14 @@
         </div>
         <div class="text-center">
             <a [routerLink]="['setting']">API Key 입력</a>
+        </div>
+    </ng-container>
+    <ng-container *ngIf="mode === 'not_ready'">
+        <div class="text-center mt-5">
+            그룹 정보를 불러오는 중입니다.
+        </div>
+        <div class="flex align-items-center justify-content-center h-10rem">
+            <p-progressSpinner></p-progressSpinner>
         </div>
     </ng-container>
 

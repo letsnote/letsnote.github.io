@@ -2,11 +2,8 @@
 
 import { AfterViewInit, Component, ElementRef, NgZone, OnChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, Route, Router } from '@angular/router';
-import { createGroup } from 'hypothesis-data';
 import { AppService } from './app.service';
-import { RealtimeService } from './external/realtime.service';
 import { ExtensionService } from './fragment/extension.service';
-import { GroupListModel } from './group-list/group-list.component';
 import { ConfigService } from './setting/config.service';
 @Component({
   selector: 'app-root',
@@ -41,6 +38,8 @@ export class AppComponent implements AfterViewInit {
     }
   }
 
+  firstShow = false;
+
   private async initializeHandlerForExtension(){
     const currentTab = await chrome.tabs.getCurrent();
 
@@ -49,6 +48,10 @@ export class AppComponent implements AfterViewInit {
         if (sender.tab?.id === currentTab.id) {
           if (msg.type === 5){ // SHOWN
             this.appService.enableComponentRendering();
+            if(!this.firstShow){
+              this.router.navigate(['groups']);
+              this.firstShow = true;
+            }
             // this.appService.updateVisible(true);
             sendResponse();
           }else if (msg.type === 4){

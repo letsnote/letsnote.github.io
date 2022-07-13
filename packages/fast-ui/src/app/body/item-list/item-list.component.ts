@@ -39,7 +39,9 @@ export class ItemListComponent implements OnInit, OnDestroy {
     let s = route.params.subscribe((param) => {
       this.groupId = param['groupId'];
       this.annotationFetchService = new AnnotationListService(this.config.key, this.groupId);
-      this.loadItemList();
+      this.loadItemList().then(() => {
+        this.mode = 'ready';
+      });
     })
     let s2 = this.annotationService.newNoteObserverble.subscribe((row) => {
       if (this.groupId === row.group)
@@ -62,6 +64,8 @@ export class ItemListComponent implements OnInit, OnDestroy {
     });
     this.subscriptions.push(s, s2, s3, s4, s5);
   }
+
+  mode: 'ready' | 'not_ready' = 'not_ready';
 
   ngOnInit(): void {
 

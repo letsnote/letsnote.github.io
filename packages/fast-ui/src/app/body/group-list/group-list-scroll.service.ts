@@ -8,8 +8,8 @@ export class GroupListScrollService {
   key = 'group-list-scroll';
 
   private scrollSubject = new ReplaySubject<number>(1);
-  scrollObservable = this.scrollSubject.asObservable();
-
+  
+  lastScrollObservable = this.scrollSubject.asObservable();
   constructor() {
     let item = localStorage.getItem(this.key);
     if(item)

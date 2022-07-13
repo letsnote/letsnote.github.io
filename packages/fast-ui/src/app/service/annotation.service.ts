@@ -4,8 +4,7 @@ import { Subject } from 'rxjs';
 import { TextFragment } from 'text-fragments-polyfill/dist/fragment-generation-utils';
 import { AppService } from '../app.service';
 import { composeUrl } from '../fragment/fragment';
-import { GroupModel } from '../group/group.component';
-import { ItemModel } from '../item/item/item.component';
+import { ItemModel } from '../body/item/item.component';
 import { ConfigService } from '../setting/config.service';
 
 @Injectable({

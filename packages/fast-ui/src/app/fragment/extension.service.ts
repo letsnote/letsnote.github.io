@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { last, Subject } from 'rxjs';
 import { TextFragment } from 'text-fragments-polyfill/dist/fragment-generation-utils';
-import { GroupListModel } from '../group-list/group-list.component';
+import { GroupListModel } from '../group-model';
 
 //TODO: refactor
 @Injectable({

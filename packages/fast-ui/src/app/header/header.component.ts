@@ -7,7 +7,6 @@ import { Subscription } from 'rxjs';
 import { TextFragment } from 'text-fragments-polyfill/dist/fragment-generation-utils';
 import { ExtensionService } from '../fragment/extension.service';
 import { composeUrl } from '../fragment/fragment';
-import { GroupModel } from '../group/group.component';
 import { ConfigService } from '../setting/config.service';
 import { HeaderObserverService } from './header-observer.service';
 import { FormBuilder, FormControl } from '@angular/forms';
@@ -16,6 +15,7 @@ import { HeaderService } from './header.service';
 import { AppService } from '../app.service';
 import { AnnotationService } from '../service/annotation.service';
 import { Location } from '@angular/common';
+import { GroupModel } from '../group-model';
 
 @Component({
   selector: 'header',
@@ -30,7 +30,7 @@ export class HeaderComponent implements OnInit {
     {
       label: '그룹',
       command: () => {
-        this.router.navigate([''], { replaceUrl: true });
+        this.router.navigate(['groups'], { replaceUrl: true });
       },
     },
   ];
@@ -49,7 +49,7 @@ export class HeaderComponent implements OnInit {
   items = [
     {
       label: '새 노트', icon: 'pi pi-plus', command: () => {
-        if(!this.group)
+        if (!this.group)
           return;
         const groupId = this.group.id;
         this.onNewNote(groupId, "EMPTY_SOURCE");
@@ -68,33 +68,36 @@ export class HeaderComponent implements OnInit {
         this.group = undefined;
         const urlWithoutHashFragment = event.urlAfterRedirects.split('#')[0];
         if (urlWithoutHashFragment.includes('groups')) {
-          this.currentRoute = CurrentRoute.Group;
-          const groupId = urlWithoutHashFragment.split('/')[2];
-          api.getGroups(config.key).then((groups) => {
-            this.group = groups.find((g) => g.id === groupId.split('?')[0]);
-            this.breadcrumbItems = [
-              ...this.baseBreadcrumbItems, {
-                label: `${this.group?.name}`,
-                id: `${this.group?.id}`,
-                command: () => {
-                  if (this.group)
-                    this.requestToRenameGroup(this.group?.id, this.group?.name, this.group?.name);
-                }
-              },
-            ];
-          });
-          this.observer.searchInputControl.setValue(''); //TODO
+          const urlParts = urlWithoutHashFragment.split('/');
+          if (urlParts.length >= 3) {
+            this.currentRoute = CurrentRoute.Group;
+            const groupId = urlParts[2];
+            api.getGroups(config.key).then((groups) => {
+              this.group = groups.find((g) => g.id === groupId.split('?')[0]);
+              this.breadcrumbItems = [
+                ...this.baseBreadcrumbItems, {
+                  label: `${this.group?.name}`,
+                  id: `${this.group?.id}`,
+                  command: () => {
+                    if (this.group)
+                      this.requestToRenameGroup(this.group?.id, this.group?.name, this.group?.name);
+                  }
+                },
+              ];
+            });
+            this.observer.searchInputControl.setValue(''); //TODO
+          }else {
+            this.currentRoute = CurrentRoute.Home;
+            this.breadcrumbItems = [...this.baseBreadcrumbItems];
+            this.observer.searchInputControl.setValue(this.lastGroupSearchKeyword);
+          }
         } else if (urlWithoutHashFragment.includes('setting')) {
           this.currentRoute = CurrentRoute.Setting;
           this.breadcrumbItems = [
             ...this.baseBreadcrumbItems,
             { label: `설정` },
           ];
-        } else {
-          this.currentRoute = CurrentRoute.Home;
-          this.breadcrumbItems = [...this.baseBreadcrumbItems];
-          this.observer.searchInputControl.setValue(this.lastGroupSearchKeyword);
-        }
+        } 
       }
     });
 
@@ -106,7 +109,7 @@ export class HeaderComponent implements OnInit {
     extensionService.requestFromContextMenu.subscribe(({ groupId }) => {
       this.onNewNote(groupId);
     });
-    
+
     this.headerService.renameObservable.subscribe((param: { groupId: string, oldValue: string, newValue?: string }) => {
       this.requestToRenameGroup(param.groupId, param.oldValue, param.newValue);
     });

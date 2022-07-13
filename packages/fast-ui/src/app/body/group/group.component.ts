@@ -3,8 +3,9 @@ import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { ContextMenu } from 'primeng/contextmenu';
 import { skip, Subscription } from 'rxjs';
 import { GroupListScrollService } from '../group-list/group-list-scroll.service';
-import { HeaderObserverService } from '../header/header-observer.service';
-import { HeaderService } from '../header/header.service';
+import { HeaderObserverService } from '../../header/header-observer.service';
+import { HeaderService } from '../../header/header.service';
+import { GroupModel } from '../../group-model';
 
 @Component({
   selector: 'group',
@@ -95,7 +96,7 @@ export class GroupComponent implements OnInit, OnDestroy {
 
   onShow(){    
     this.scrollObserver?.unsubscribe();
-    this.scrollObserver = this.groupListScrollService.scrollObservable.pipe(skip(1)).subscribe((top) => {
+    this.scrollObserver = this.groupListScrollService.lastScrollObservable.pipe(skip(1)).subscribe((top) => {
       this.menu?.hide();
     });
   }
@@ -105,8 +106,3 @@ export class GroupComponent implements OnInit, OnDestroy {
     this.scrollObserver = undefined;
   }
 }
-
-export interface GroupModel extends _Types.GroupsResponse.RootObject {
-  itemCount?: number;
-  disabled?: boolean
-};

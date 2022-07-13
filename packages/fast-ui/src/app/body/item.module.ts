@@ -17,11 +17,16 @@ import { HttpClient } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ItemComponent } from './item/item.component';
 import { CustomChipModule } from '../custom-chip/custom-chip.module';
+import { GroupListComponent } from './group-list/group-list.component';
+import { GroupComponent } from './group/group.component';
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
 @NgModule({
   declarations: [
     ItemAppComponent,
     ItemComponent,
     ItemListComponent,
+    GroupListComponent,
+    GroupComponent,
   ],
   imports: [
     CommonModule,
@@ -38,7 +43,8 @@ import { CustomChipModule } from '../custom-chip/custom-chip.module';
     DropdownModule,
     DialogModule,
     CustomChipModule,
+    ProgressSpinnerModule,
     MarkdownModule.forRoot({ loader: HttpClient }),
   ]
 })
-export class ItemModule { }
+export class BodyModule { }

@@ -15,4 +15,12 @@
             <p-skeleton height="5rem" styleClass="mb-2"></p-skeleton>
         </div>
     </ng-container>
+    <ng-container *ngIf="mode === 'not_ready'">
+        <div class="text-center mt-5">
+            노트 정보를 불러오는 중입니다.
+        </div>
+        <div class="flex align-items-center justify-content-center h-10rem">
+            <p-progressSpinner></p-progressSpinner>
+        </div>
+    </ng-container>
 </ng-container>
