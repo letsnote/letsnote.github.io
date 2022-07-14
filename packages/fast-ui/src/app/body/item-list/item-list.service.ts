@@ -1,20 +1,23 @@
 import { Injectable } from '@angular/core';
-import { deleteAnnotation, getAnnotations } from 'hypothesis-data';
+import { deleteAnnotation, getAnnotations, updateAnnotation } from 'hypothesis-data';
 import { composeUrl } from '../../fragment/fragment';
 import { ItemModel, ItemType } from '../item/item.component';
 import { updateSomeProperties } from './annotation-fetch.service';
 import { ItemListModel } from './item-list-model';
 
-export class AnnotationListService {
-
+export class ItemListService {
   constructor(private key: string, private groupId: string) { }
   annotations: ItemListModel = { rows: [], total: 0 };
   keyword: string = '';
   sort: 'updated' | 'created' = 'updated';
   lazyLoadedLength: number = 20;
 
-  async deleteAnnotation(apiKey: string, id: string) {
-    await deleteAnnotation(apiKey, id);
+  async updateAnnotation(model: ItemModel){
+    await updateAnnotation(this.key, model.id, { text: model.text });
+  }
+
+  async deleteAnnotation(id: string) {
+    await deleteAnnotation(this.key, id);
     this.annotations = {
       total: this.annotations.total - 1
       , rows: this.annotations.rows.filter((m) => m.id != id)

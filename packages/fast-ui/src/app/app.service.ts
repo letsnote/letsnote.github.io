@@ -44,7 +44,7 @@ export class AppService {
   onChangeComponentRendering = this._onChangeComponentRendering.asObservable();
 
   async currentTab() {
-    if(!this.isChrome())
+    if(!this.isExtension())
       return Promise.reject("It's not hosted by the extension");
     return new Promise<chrome.tabs.Tab>((resolve, reject) => {
       chrome?.tabs?.query({ active: true, lastFocusedWindow: true },
@@ -56,7 +56,7 @@ export class AppService {
   }
 
   async pageInfo() {
-    if(!this.isChrome())
+    if(!this.isExtension())
       return Promise.reject("It's not hosted by the extension");
     const tab = await this.currentTab();
     let pageInfo: { title: string, href: string, favicon: string }
@@ -72,7 +72,7 @@ export class AppService {
     return pageInfo;
   }
 
-  isChrome(){
+  isExtension(){
     return location.href.includes("chrome-extension");
   }
 

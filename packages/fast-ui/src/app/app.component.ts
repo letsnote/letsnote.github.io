@@ -3,7 +3,7 @@
 import { AfterViewInit, Component, ElementRef, NgZone, OnChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, Route, Router } from '@angular/router';
 import { AppService } from './app.service';
-import { ExtensionService } from './fragment/extension.service';
+import { ContextMenuService } from './service/context-menu.service';
 import { ConfigService } from './setting/config.service';
 @Component({
   selector: 'app-root',
@@ -11,12 +11,11 @@ import { ConfigService } from './setting/config.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements AfterViewInit {
-  title = 'fast-ui';
-  got = 'aaa';
+  title = 'Thesis Note';
   @ViewChild("outer")
   outerElementRef: ElementRef | undefined;
 
-  constructor(private hostElement: ElementRef, private config: ConfigService, private extension: ExtensionService, private router: Router, private appService: AppService, private route: ActivatedRoute
+  constructor(private hostElement: ElementRef, private config: ConfigService, private extension: ContextMenuService, private router: Router, private appService: AppService, private route: ActivatedRoute
     , private ngZone: NgZone) {
   }
 

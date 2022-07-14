@@ -1,32 +1,49 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
 import { NavigationEnd, Router } from '@angular/router';
 import * as api from 'hypothesis-data';
-import { createAnnotations, getProfile, updateGroup } from 'hypothesis-data';
+import { updateGroup } from 'hypothesis-data';
 import { MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
-import { TextFragment } from 'text-fragments-polyfill/dist/fragment-generation-utils';
-import { ExtensionService } from '../fragment/extension.service';
-import { composeUrl } from '../fragment/fragment';
-import { ConfigService } from '../setting/config.service';
-import { HeaderObserverService } from './header-observer.service';
-import { FormBuilder, FormControl } from '@angular/forms';
-import { rejects } from 'assert';
-import { HeaderService } from './header.service';
-import { AppService } from '../app.service';
-import { AnnotationService } from '../service/annotation.service';
-import { Location } from '@angular/common';
 import { GroupModel } from '../group-model';
+import { AnnotationCreationService } from '../service/annotation-creation.service';
+import { ContextMenuService as FragmentExtensionService } from '../service/context-menu.service';
+import { ExtensionService } from '../service/extension.service';
+import { ConfigService } from '../setting/config.service';
+import { HeaderService } from './header.service';
 
 @Component({
   selector: 'header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   menuItems: MenuItem[] = [];
-  searchKeyword: string = '';
   breadcrumbItems: MenuItem[] = [];
-  baseBreadcrumbItems: MenuItem[] = [
+  currentGroup: GroupModel | undefined;
+  currentRoute: CurrentRoute = CurrentRoute.Home;
+  noteSearchSubscription: Subscription | undefined;
+  groupSearchSubscription: Subscription | undefined;
+  subscriptions: Subscription[] = [];
+
+  renameFormGroup = this.formBuilder.group({
+    groupId: ['', Validators.required],
+    oldValue: ['', Validators.required],
+    newValue: ['', Validators.required]
+  });
+
+  splitButtonItems = [{
+    label: '새 노트', icon: 'pi pi-plus', command: () => {
+      if (!this.currentGroup)
+        return;
+      const groupId = this.currentGroup.id;
+      this.annotationService.createNewAnnotation(groupId);
+    }
+  }]
+
+  displayRenameDialog = false;
+
+  private readonly baseBreadcrumbItems: MenuItem[] = [
     {
       label: '그룹',
       command: () => {
@@ -34,38 +51,14 @@ export class HeaderComponent implements OnInit {
       },
     },
   ];
-  group: GroupModel | undefined;
-  currentRoute: CurrentRoute = CurrentRoute.Home;
-  lastGroupSearchKeyword: string = '';
-  noteSearchSubscription: Subscription | undefined;
-  groupSearchSubscription: Subscription | undefined;
 
-  renameFormGroup = this.formBuilder.group({
-    groupId: [''],
-    oldValue: [''],
-    newValue: ['']
-  });
-
-  items = [
-    {
-      label: '새 노트', icon: 'pi pi-plus', command: () => {
-        if (!this.group)
-          return;
-        const groupId = this.group.id;
-        this.onNewNote(groupId, "EMPTY_SOURCE");
-      }
-    }
-  ];
-
-  displayRenameDialog = false;
-
-  constructor(private location: Location, public config: ConfigService, private router: Router, private extensionService: ExtensionService, public observer: HeaderObserverService,
-    private formBuilder: FormBuilder,
-    private headerService: HeaderService,
-    private annotationService: AnnotationService) {
-    this.router.events.subscribe((event) => {
+  constructor( public config: ConfigService, private router: Router,
+    public extensionService: ExtensionService, private formBuilder: FormBuilder,
+    public headerService: HeaderService,
+    public annotationService: AnnotationCreationService) {
+    let s3 = this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
-        this.group = undefined;
+        this.currentGroup = undefined;
         const urlWithoutHashFragment = event.urlAfterRedirects.split('#')[0];
         if (urlWithoutHashFragment.includes('groups')) {
           const urlParts = urlWithoutHashFragment.split('/');
@@ -73,23 +66,23 @@ export class HeaderComponent implements OnInit {
             this.currentRoute = CurrentRoute.Group;
             const groupId = urlParts[2];
             api.getGroups(config.key).then((groups) => {
-              this.group = groups.find((g) => g.id === groupId.split('?')[0]);
+              this.currentGroup = groups.find((g) => g.id === groupId.split('?')[0]);
               this.breadcrumbItems = [
                 ...this.baseBreadcrumbItems, {
-                  label: `${this.group?.name}`,
-                  id: `${this.group?.id}`,
+                  label: `${this.currentGroup?.name}`,
+                  id: `${this.currentGroup?.id}`,
                   command: () => {
-                    if (this.group)
-                      this.requestToRenameGroup(this.group?.id, this.group?.name, this.group?.name);
+                    if (this.currentGroup)
+                      this.updateRenameForm(this.currentGroup?.id, this.currentGroup?.name, this.currentGroup?.name);
                   }
                 },
               ];
             });
-            this.observer.searchInputControl.setValue(''); //TODO
+            this.headerService.searchInputControl.setValue(''); //TODO
           }else {
             this.currentRoute = CurrentRoute.Home;
             this.breadcrumbItems = [...this.baseBreadcrumbItems];
-            this.observer.searchInputControl.setValue(this.lastGroupSearchKeyword);
+            this.headerService.searchInputControl.setValue(this.headerService.lastGroupSearchKeyword);
           }
         } else if (urlWithoutHashFragment.includes('setting')) {
           this.currentRoute = CurrentRoute.Setting;
@@ -101,23 +94,22 @@ export class HeaderComponent implements OnInit {
       }
     });
 
-    this.observer.searchInputControl.valueChanges.subscribe((value) => {
+    let s1 = this.headerService.searchInputControl.valueChanges.subscribe((value) => {
       if (this.currentRoute === CurrentRoute.Home)
-        this.lastGroupSearchKeyword = value;
+        this.headerService.lastGroupSearchKeyword = value;
     });
 
-    extensionService.requestFromContextMenu.subscribe(({ groupId }) => {
-      this.onNewNote(groupId);
+    let s2 = this.headerService.renameGroupRequestedObservable.subscribe((param: { groupId: string, oldValue: string, newValue?: string }) => {
+      this.updateRenameForm(param.groupId, param.oldValue, param.newValue);
     });
+    this.subscriptions.push(s1,s2,s3);
+  }
 
-    this.headerService.renameObservable.subscribe((param: { groupId: string, oldValue: string, newValue?: string }) => {
-      this.requestToRenameGroup(param.groupId, param.oldValue, param.newValue);
-    });
-
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(s => s.unsubscribe());
   }
 
   close() {
-    console.debug('close');
     this.onClose.emit();
   }
 
@@ -132,7 +124,7 @@ export class HeaderComponent implements OnInit {
   async onNewGroup(tryCount: number = 0) {
     const randomSeq = parseInt('' + Math.random() * 1000);
     if (tryCount > 5) {
-      console.error(`Can't create a new group`);
+      console.info(`Can't create a new group`);
       return;
     }
     try {
@@ -145,15 +137,6 @@ export class HeaderComponent implements OnInit {
       console.info(`Try to create a group again with another sequence number.`);
       this.onNewGroup(++tryCount);
     }
-  }
-
-  /**
-   * TODO: It should not be here
-   * @param groupId 
-   */
-  async onNewNote(groupId: string, urlParameter?: string) {
-    return this.annotationService.createNewAnnotation(
-      groupId, urlParameter);
   }
 
   ngOnInit(): void {
@@ -174,22 +157,25 @@ export class HeaderComponent implements OnInit {
     ];
   }
 
-  requestToRenameGroup(groupId: string, oldValue: string, newValue?: string) {
+  private updateRenameForm(groupId: string, oldValue: string, newValue?: string) {
     this.renameFormGroup.patchValue({
       groupId,
       oldValue,
       newValue: newValue ?? oldValue
     });
     this.displayRenameDialog = true;
-
   }
 
   onRenameSave() {
+    if(this.renameFormGroup.invalid){
+      console.info("그룹명이 비어있습니다.");
+      return;
+    }
     const id = this.renameFormGroup.get("groupId")?.value;
     const newName = this.renameFormGroup.get("newValue")?.value;
     updateGroup(this.config.key, id, { name: newName }).then(resolve => {
-      if (this.group) {
-        this.group.name = newName;
+      if (this.currentGroup) {
+        this.currentGroup.name = newName;
         this.breadcrumbItems = this.breadcrumbItems.map(b => {
           if (b.id == id) {
             b.label = newName;
@@ -197,11 +183,11 @@ export class HeaderComponent implements OnInit {
           return b;
         });
       }
-      this.observer.pushGroupNameUpdate(id, newName);
-      console.debug("그룹명이 업데이트 되었습니다.");
+      this.headerService.pushGroupNameUpdate(id, newName);
+      console.info("그룹명이 업데이트 되었습니다.");
       this.displayRenameDialog = false;
-    }, () => {
-      console.debug("그룹명 업데이트에 실패하였습니다.");
+    }, (rejected) => {
+      console.info("그룹명 업데이트에 실패하였습니다.");
       this.displayRenameDialog = false;
     });
   }

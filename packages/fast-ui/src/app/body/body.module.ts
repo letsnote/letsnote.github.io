@@ -1,8 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { ItemRoutingModule } from './item-routing.module';
-import { ItemAppComponent } from './item.component';
+import { BodyRoutingModule } from './body-routing.module';
 import { ItemListComponent } from './item-list/item-list.component';
 
 import { MarkdownModule } from 'ngx-markdown';
@@ -22,7 +21,6 @@ import { GroupComponent } from './group/group.component';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 @NgModule({
   declarations: [
-    ItemAppComponent,
     ItemComponent,
     ItemListComponent,
     GroupListComponent,
@@ -30,7 +28,7 @@ import {ProgressSpinnerModule} from 'primeng/progressspinner';
   ],
   imports: [
     CommonModule,
-    ItemRoutingModule,
+    BodyRoutingModule,
     FormsModule,
     ReactiveFormsModule,
     FormsModule,

@@ -9,7 +9,7 @@ const routes: Routes = [
   // , 
   { path: 'setting', component: SettingComponent }
   ,
-  { path: 'groups', loadChildren: () => import('./body/item.module').then(m => m.BodyModule) }, { path: '**', redirectTo: '' }
+  { path: 'groups', loadChildren: () => import('./body/body.module').then(m => m.BodyModule) }, { path: '**', redirectTo: '' }
 ];
 
 @NgModule({

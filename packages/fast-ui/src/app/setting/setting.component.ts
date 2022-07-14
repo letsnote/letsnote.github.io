@@ -3,6 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AppService } from '../app.service';
+import { ExtensionService } from '../service/extension.service';
 import { ConfigService } from './config.service';
 
 @Component({
@@ -19,7 +20,7 @@ export class SettingComponent implements OnInit, OnDestroy {
     width: this.widthControl,
   });
   subscriptions: Subscription[] = [];
-  constructor(config: ConfigService, private appService: AppService,
+  constructor(config: ConfigService, private extensionService: ExtensionService, private appService: AppService,
     private route: ActivatedRoute) {
     this.keyControl.setValue(config.key);
     let s = this.keyControl.valueChanges.subscribe((value) => {
@@ -46,6 +47,8 @@ export class SettingComponent implements OnInit, OnDestroy {
   }
 
   async onKeyGetClick(event: MouseEvent) {
+    if(!this.extensionService.isExtension())
+      return;
     event.preventDefault();
     const currentTab = await chrome.tabs.getCurrent();
     let tab: chrome.tabs.Tab;

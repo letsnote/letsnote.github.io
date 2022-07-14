@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
-import { last, Subject } from 'rxjs';
-import { TextFragment } from 'text-fragments-polyfill/dist/fragment-generation-utils';
-import { GroupListModel, GroupModel } from '../group-model';
+import { Subject } from 'rxjs';
+import { GroupModel } from '../group-model';
+import { AnnotationCreationService } from './annotation-creation.service';
 
 //TODO: refactor
 @Injectable({
   providedIn: 'root',
 })
-export class ExtensionService {
-  constructor() {
+export class ContextMenuService {
+  constructor(private annotationService: AnnotationCreationService) {
     (window.document as any).uniqueId = parseInt(`${Math.random() * 1000000}`);
     this.addExtensionListener();
   }
@@ -25,8 +25,8 @@ export class ExtensionService {
     }
   >();
 
-  public readonly requestFromContextMenu =
-    this._requestFromContextMenu.asObservable();
+  // public readonly requestFromContextMenu =
+  //   this._requestFromContextMenu.asObservable();
 
   private async addExtensionListener() {
     const queryOptions = { active: true, currentWindow: true };
@@ -54,7 +54,8 @@ export class ExtensionService {
 
         if (tab?.id === currentTab.id) { //TODO check whether they equal?
           const groupId = `${data.menuItemId}`;
-          this._requestFromContextMenu.next({ groupId });
+          this.annotationService.createNewAnnotation(groupId);
+          // this._requestFromContextMenu.next({ groupId });
         }
       }
     };

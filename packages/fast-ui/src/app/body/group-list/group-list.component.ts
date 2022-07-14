@@ -3,8 +3,7 @@ import * as api from 'hypothesis-data'
 import { Router } from '@angular/router';
 import { ConfigService } from '../../setting/config.service';
 import { deleteGroup, getProfile } from 'hypothesis-data';
-import { ExtensionService } from '../../fragment/extension.service';
-import { HeaderObserverService } from '../../header/header-observer.service';
+import { ContextMenuService } from '../../service/context-menu.service';
 import { Subscription } from 'rxjs';
 import { AppService } from '../../app.service';
 import { GroupListScrollService } from './group-list-scroll.service';
@@ -21,14 +20,13 @@ export class GroupListComponent implements OnInit, OnDestroy, AfterViewInit {
   keyword: string = '';
   enabled = false;
   subscriptions: Subscription[] = [];
-  constructor(private hostElement: ElementRef, private config: ConfigService, private router: Router, private extensionService: ExtensionService
-    , private headerObserverService: HeaderObserverService
+  constructor(private hostElement: ElementRef, private config: ConfigService, private router: Router, private extensionService: ContextMenuService
     , private headerService: HeaderService
     , private appService: AppService
     , private changeDetectRef: ChangeDetectorRef,
     private groupListScrollService: GroupListScrollService) {
-    this.keyword = this.headerObserverService.searchInputControl.value; // TODO
-    let s = this.headerObserverService.searchInputControl.valueChanges.subscribe((keyword) => {
+    this.keyword = this.headerService.searchInputControl.value; // TODO
+    let s = this.headerService.searchInputControl.valueChanges.subscribe((keyword) => {
       this.keyword = keyword;
       this.applyKeywordToGroupList();
     });
@@ -36,7 +34,7 @@ export class GroupListComponent implements OnInit, OnDestroy, AfterViewInit {
       this.updateLastScrollPosition(lastScrollPosition);
     });
     
-    let s2 = this.headerObserverService.groupRenameUpdatedObservable.subscribe(({groupId, newName}) => {
+    let s2 = this.headerService.groupNameUpdatedObservable.subscribe(({groupId, newName}) => {
       let model = this.groupList.find(m => m.id === groupId);
       if(model)
         model.name = newName;

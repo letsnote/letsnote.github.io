@@ -9,14 +9,13 @@ import {
   OnInit,
   Output,
   SimpleChanges,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
-import { FormControl, RequiredValidator, Validators } from '@angular/forms';
-import { createAnnotations, deleteAnnotation, getGroups, updateAnnotation } from 'hypothesis-data';
+import { FormControl, Validators } from '@angular/forms';
+import { getGroups } from 'hypothesis-data';
 import { ConfirmationService, MenuItem } from 'primeng/api';
 import { ConfigService } from 'src/app/setting/config.service';
-import { composeUrl } from '../../fragment/fragment';
-import { ItemListScrollService } from '../item-list/item-list-scroll.service';
+import { ItemListScrollPositionService } from '../item-list/scroll-position.service';
 
 @Component({
   selector: 'item',
@@ -30,7 +29,7 @@ export class ItemComponent implements OnInit, OnChanges {
     private hostElementRef: ElementRef,
     private confirmationService: ConfirmationService,
     private changeDetector: ChangeDetectorRef,
-    private scrollService: ItemListScrollService,
+    private scrollService: ItemListScrollPositionService,
     private configService: ConfigService
   ) { }
   NoteBoxMode = NoteBoxMode;

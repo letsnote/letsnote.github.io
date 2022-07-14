@@ -4,7 +4,7 @@ import { BehaviorSubject, ReplaySubject } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class ItemListScrollService {
+export class ItemListScrollPositionService {
 
   constructor() { }
 
@@ -21,5 +21,4 @@ export class ItemListScrollService {
     this.subject.next(this.lastPosition);
   }
 
-  
 }

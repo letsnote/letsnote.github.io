@@ -3,7 +3,6 @@ import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { ContextMenu } from 'primeng/contextmenu';
 import { skip, Subscription } from 'rxjs';
 import { GroupListScrollService } from '../group-list/group-list-scroll.service';
-import { HeaderObserverService } from '../../header/header-observer.service';
 import { HeaderService } from '../../header/header.service';
 import { GroupModel } from '../../group-model';
 
@@ -35,7 +34,6 @@ export class GroupComponent implements OnInit, OnDestroy {
   subscriptions: Subscription[] = [];
 
   constructor(private hostElementRef: ElementRef, private confirmationService: ConfirmationService, private headerService: HeaderService,
-    private headerObserver: HeaderObserverService,
     private groupListScrollService: GroupListScrollService) {
     }
 

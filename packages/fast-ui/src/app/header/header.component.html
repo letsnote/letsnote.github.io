@@ -15,7 +15,7 @@
     <div class="m-auto" style="flex: 1;">
         <span class="p-input-icon-left">
             <i class="pi pi-search"></i>
-            <input type="text" pInputText [formControl]="observer.searchInputControl" placeholder="검색"
+            <input type="text" pInputText [formControl]="headerService.searchInputControl" placeholder="검색"
                 class="p-inputtext-sm">
         </span>
     </div>
@@ -24,12 +24,15 @@
             <button pButton pRipple type="button" icon="pi pi-plus" label="새 그룹"
                 class="p-button-rounded p-button-text p-button-sm" (click)="onNewGroup()"
                 *ngIf="currentRoute === 0"></button>
-            
-            <p-splitButton label="새 페이지 노트" 
-            icon="pi pi-plus"
-            [model]="items" (onClick)="onNewNote($any(group).id)"
-             styleClass="p-button-text p-button-rounded p-button-sm mr-2 mb-2"
-                *ngIf="currentRoute === 1"></p-splitButton>
+
+            <p-splitButton label="새 페이지 노트" icon="pi pi-plus" [model]="splitButtonItems" (onClick)="annotationService.createNewAnnotation($any(currentGroup).id)"
+                styleClass="p-button-text p-button-rounded p-button-sm mr-2 mb-2"
+                *ngIf="currentRoute === 1 && extensionService.isExtension()"></p-splitButton>
+
+            <button pButton pRipple label="새 노트" icon="pi pi-plus" 
+                (click)="annotationService.createNewAnnotation($any(currentGroup).id)"
+                class="p-button-rounded p-button-text p-button-sm"
+                *ngIf="currentRoute === 1 && !extensionService.isExtension()"></button>
         </ng-container>
     </div>
 </div>
