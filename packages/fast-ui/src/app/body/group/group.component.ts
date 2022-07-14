@@ -25,6 +25,8 @@ export class GroupComponent implements OnInit, OnDestroy {
   @Output("groupDeleteClick")
   groupDeleteEmitter = new EventEmitter();
 
+  @Output("groupRenameClick")
+  groupRenameEmitter = new EventEmitter<{id: string, name: string}>();
   @ViewChild("menu")
   menu: ContextMenu | undefined;
 
@@ -38,12 +40,6 @@ export class GroupComponent implements OnInit, OnDestroy {
     }
 
   ngOnInit(): void {
-
-    let s1 = this.headerObserver.groupRenameUpdatedObservable.subscribe(({groupId, newName}) => {
-      if(this.model?.id == groupId)
-        this.model.name = newName;
-    });
-    this.subscriptions.push(s1);
   }
 
   ngOnDestroy(): void {
@@ -73,7 +69,7 @@ export class GroupComponent implements OnInit, OnDestroy {
       return;
     (event.originalEvent as Event).stopPropagation();
     if (this.model)
-      this.headerService.requestToRenameGroup(this.model.id, this.model.name);
+      this.groupRenameEmitter.emit({id: this.model.id, name: this.model.name});
   }
 
   onGroupDeleteClick(event: any) {

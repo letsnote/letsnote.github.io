@@ -9,6 +9,7 @@ import { Subscription } from 'rxjs';
 import { AppService } from '../../app.service';
 import { GroupListScrollService } from './group-list-scroll.service';
 import { GroupListModel, GroupModel } from 'src/app/group-model';
+import { HeaderService } from 'src/app/header/header.service';
 
 @Component({
   templateUrl: './group-list.component.html',
@@ -16,23 +17,32 @@ import { GroupListModel, GroupModel } from 'src/app/group-model';
 })
 export class GroupListComponent implements OnInit, OnDestroy, AfterViewInit {
 
-  model: GroupListModel = { groups: [] };
+  groupList: GroupModel[] = [];
   keyword: string = '';
   enabled = false;
   subscriptions: Subscription[] = [];
-  constructor(private hostElement: ElementRef, private config: ConfigService, private router: Router, private extensionService: ExtensionService, private headerService: HeaderObserverService
+  constructor(private hostElement: ElementRef, private config: ConfigService, private router: Router, private extensionService: ExtensionService
+    , private headerObserverService: HeaderObserverService
+    , private headerService: HeaderService
     , private appService: AppService
     , private changeDetectRef: ChangeDetectorRef,
     private groupListScrollService: GroupListScrollService) {
-    this.keyword = this.headerService.searchInputControl.value; // TODO
-    let s = this.headerService.searchInputControl.valueChanges.subscribe((keyword) => {
+    this.keyword = this.headerObserverService.searchInputControl.value; // TODO
+    let s = this.headerObserverService.searchInputControl.valueChanges.subscribe((keyword) => {
       this.keyword = keyword;
       this.applyKeywordToGroupList();
     });
     let s1 = this.groupListScrollService.lastScrollObservable.subscribe((lastScrollPosition) => {
       this.updateLastScrollPosition(lastScrollPosition);
     });
-    this.subscriptions.push(s, s1);
+    
+    let s2 = this.headerObserverService.groupRenameUpdatedObservable.subscribe(({groupId, newName}) => {
+      let model = this.groupList.find(m => m.id === groupId);
+      if(model)
+        model.name = newName;
+      this.sortGroupList();
+    });
+    this.subscriptions.push(s, s1, s2);
   }
 
   mode: 'ready' | 'no_key' | 'not_ready' = 'not_ready';
@@ -63,12 +73,12 @@ export class GroupListComponent implements OnInit, OnDestroy, AfterViewInit {
     // let s1 = this.appService.onChangeComponentRendering.subscribe((enabled) => {
     //   this.enabled = enabled;
     //   this.changeDetectRef.detectChanges();
-      // console.debug(`lastScrollTop: ${this.lastScrollPosition}, enabled: ${enabled}`);
-      // if (enabled) {
-      //   this.hostElement.nativeElement.scrollTop = this.lastScrollPosition;
-      //   this.observeGroupListScroll();
-      // } else
-      //   this.unobserveGroupListScroll();
+    // console.debug(`lastScrollTop: ${this.lastScrollPosition}, enabled: ${enabled}`);
+    // if (enabled) {
+    //   this.hostElement.nativeElement.scrollTop = this.lastScrollPosition;
+    //   this.observeGroupListScroll();
+    // } else
+    //   this.unobserveGroupListScroll();
     // });
     // this.subscriptions.push(s1);
   }
@@ -115,17 +125,18 @@ export class GroupListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private async loadGroups() {
     const groups = (await api.getGroups(this.config.key)).filter(g => g.name.toLowerCase() !== 'public');
-    this.model = { groups: groups.map(g => ({ ...g })) };
+    this.groupList = groups.map(g => ({ ...g })) ;
     // for (let group of this.model.groups) {
     //   group.itemCount = await this.getItemCount(group);
     // }
+    this.sortGroupList();
     this.applyKeywordToGroupList();
-    this.onGroupListUpdate();
+    this.onContentMenuUpdate();
     this.changeDetectRef.detectChanges();
   }
 
   private async updateGroupItemCount() {
-    for (let group of this.model.groups) {
+    for (let group of this.groupList) {
       group.itemCount = await this.getItemCount(group);
     }
   }
@@ -136,13 +147,18 @@ export class GroupListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   async onGroupDeleteClick(model: GroupModel) {
     await deleteGroup(this.config.key, model.id);
-    this.model.groups = this.model.groups.filter(m => m.id != model.id);
+    this.groupList = this.groupList.filter(m => m.id != model.id);
     this.applyKeywordToGroupList();
-    this.onGroupListUpdate();
+    this.onContentMenuUpdate();
+  }
+
+  sortGroupList() {
+    this.groupList.sort((a, b) => a.name > b.name ? 1 : -1);
+    this.changeDetectRef.detectChanges();
   }
 
   private applyKeywordToGroupList() {
-    this.model.groups.forEach(g => {
+    this.groupList.forEach(g => {
       if (g.name.toLocaleLowerCase().includes(this.keyword.toLocaleLowerCase())) {
         g.disabled = false;
       } else {
@@ -151,8 +167,12 @@ export class GroupListComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  onGroupListUpdate() {
+  onContentMenuUpdate() {
     //TODO
-    this.extensionService.updateContextMenu(this.model);
+    this.extensionService.updateContextMenu(this.groupList);
+  }
+
+  onGroupRenameClick(event: { id: string, name: string }) {
+    this.headerService.requestToRenameGroup(event.id, event.name);
   }
 }

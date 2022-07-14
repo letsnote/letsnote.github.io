@@ -1,6 +1,7 @@
 <ng-container>
     <ng-container *ngIf="mode === 'ready'">
-        <group *ngFor="let i of model?.groups" [model]="i" (groupClick)="onGroupClick($event)"
+        <group *ngFor="let i of groupList" [model]="i" (groupClick)="onGroupClick($event)"
+        (groupRenameClick)="onGroupRenameClick($event)"
             (groupDeleteClick)="onGroupDeleteClick($event)" [ngStyle]="{'display': i.disabled ? 'none' : 'inherit'}">
         </group>
     </ng-container>

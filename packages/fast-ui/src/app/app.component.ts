@@ -49,7 +49,7 @@ export class AppComponent implements AfterViewInit {
           if (msg.type === 5){ // SHOWN
             this.appService.enableComponentRendering();
             if(!this.firstShow){
-              this.router.navigate(['groups']);
+              this.router.navigate(['groups'], {replaceUrl: true});
               this.firstShow = true;
             }
             // this.appService.updateVisible(true);

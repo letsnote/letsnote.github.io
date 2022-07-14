@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { last, Subject } from 'rxjs';
 import { TextFragment } from 'text-fragments-polyfill/dist/fragment-generation-utils';
-import { GroupListModel } from '../group-model';
+import { GroupListModel, GroupModel } from '../group-model';
 
 //TODO: refactor
 @Injectable({
@@ -62,7 +62,7 @@ export class ExtensionService {
     chrome.contextMenus?.onClicked.addListener(listener);
   }
 
-  async updateContextMenu(model: GroupListModel) {
+  async updateContextMenu(model: GroupModel[]) {
     console.debug('update context menu');
     chrome.contextMenus?.removeAll(() => {
       console.debug('upate context menu after removeall');
@@ -72,7 +72,7 @@ export class ExtensionService {
         contexts: ['all'],
         id: 'add_to_group',
       });
-      model.groups.forEach((g) => {
+      model.forEach((g) => {
         chrome.contextMenus.create({
           title: `${g.name}`,
           parentId: 'add_to_group',
