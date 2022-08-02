@@ -12,7 +12,7 @@ export class ItemListService {
   sort: 'updated' | 'created' = 'updated';
   lazyLoadedLength: number = 20;
 
-  async updateAnnotation(model: ItemModel){
+  async updateAnnotation(model: ItemModel) {
     await updateAnnotation(this.key, model.id, { text: model.text });
   }
 
@@ -27,7 +27,8 @@ export class ItemListService {
 
   async updateListAfterCreatingAnnotation(row: _Types.AnnotationsResponse.Row) {
     let annotation = row as ItemModel;
-    annotation.itemType = (annotation.target.some(t => !!t.selector)) ? ItemType.Annotation : ItemType.PageNote;
+    annotation.itemType = annotation.uri.startsWith('EMPTY_') ? ItemType.EmptySource :
+      (annotation.target.some(t => !!t.selector)) ? ItemType.Annotation : ItemType.PageNote;
     updateSomeProperties(annotation);
     this.annotations = {
       rows: [...this.annotations.rows, annotation],
@@ -87,7 +88,8 @@ export class ItemListService {
     }
     response.rows.forEach((row) => {
       // The type of item is decided by target > selector 
-      row.itemType = (row.target.some(t => !!t.selector)) ? ItemType.Annotation : ItemType.PageNote;
+      row.itemType = row.uri.startsWith('EMPTY_') ? ItemType.EmptySource :
+        (row.target.some(t => !!t.selector)) ? ItemType.Annotation : ItemType.PageNote;
       updateSomeProperties(row);
     });
     this.annotations.rows.push(...response.rows);

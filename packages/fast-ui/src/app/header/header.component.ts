@@ -36,8 +36,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     label: '새 노트', icon: 'pi pi-plus', command: () => {
       if (!this.currentGroup)
         return;
-      const groupId = this.currentGroup.id;
-      this.annotationService.createNewAnnotation(groupId);
+      this.annotationCreationService.createNewAnnotation(this.currentGroup.id);
     }
   }]
 
@@ -52,10 +51,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     },
   ];
 
-  constructor( public config: ConfigService, private router: Router,
+  constructor(public config: ConfigService, private router: Router,
     public extensionService: ExtensionService, private formBuilder: FormBuilder,
     public headerService: HeaderService,
-    public annotationService: AnnotationCreationService) {
+    public annotationCreationService: AnnotationCreationService) {
     let s3 = this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         this.currentGroup = undefined;
@@ -72,14 +71,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
                   label: `${this.currentGroup?.name}`,
                   id: `${this.currentGroup?.id}`,
                   command: () => {
-                    if (this.currentGroup)
-                      this.updateRenameForm(this.currentGroup?.id, this.currentGroup?.name, this.currentGroup?.name);
+                    if (this.currentGroup) {
+                      if (this.extensionService.isExtension())
+                        this.updateRenameForm(this.currentGroup?.id, this.currentGroup?.name, this.currentGroup?.name);
+                      else
+                        window.open(`https://hypothes.is/groups/${this.currentGroup.id}/edit`, "_blank");
+                    }
                   }
                 },
               ];
             });
             this.headerService.searchInputControl.setValue(''); //TODO
-          }else {
+          } else {
             this.currentRoute = CurrentRoute.Home;
             this.breadcrumbItems = [...this.baseBreadcrumbItems];
             this.headerService.searchInputControl.setValue(this.headerService.lastGroupSearchKeyword);
@@ -90,7 +93,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
             ...this.baseBreadcrumbItems,
             { label: `설정` },
           ];
-        } 
+        }
       }
     });
 
@@ -102,7 +105,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     let s2 = this.headerService.renameGroupRequestedObservable.subscribe((param: { groupId: string, oldValue: string, newValue?: string }) => {
       this.updateRenameForm(param.groupId, param.oldValue, param.newValue);
     });
-    this.subscriptions.push(s1,s2,s3);
+    this.subscriptions.push(s1, s2, s3);
   }
 
   ngOnDestroy(): void {
@@ -167,7 +170,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   onRenameSave() {
-    if(this.renameFormGroup.invalid){
+    if (this.renameFormGroup.invalid) {
       console.info("그룹명이 비어있습니다.");
       return;
     }
@@ -190,6 +193,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
       console.info("그룹명 업데이트에 실패하였습니다.");
       this.displayRenameDialog = false;
     });
+  }
+
+  refresh(){
+    window.location.reload();
   }
 }
 

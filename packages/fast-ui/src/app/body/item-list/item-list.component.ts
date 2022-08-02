@@ -7,7 +7,7 @@ import { HeaderService } from 'src/app/header/header.service';
 import { AnnotationCreationService } from 'src/app/service/annotation-creation.service';
 import { ExtensionService } from 'src/app/service/extension.service';
 import { ConfigService } from 'src/app/setting/config.service';
-import { ItemComponent, ItemModel } from '../item/item.component';
+import { ItemComponent, ItemModel, ItemType } from '../item/item.component';
 import { ItemListScrollPositionService } from './scroll-position.service';
 import { ItemListService } from './item-list.service';
 
@@ -96,10 +96,10 @@ export class ItemListComponent implements OnInit, OnDestroy {
 
   async onItemClick({ model, event }: { model: ItemModel, event: MouseEvent }) {
     if(!this.extensionService.isExtension()){
+      if(model.itemType == ItemType.EmptySource)
+        return;
       window.open(model.uri, "_blank");
-      return;
-    }
-    if (model.urlWithoutMeta) {
+    } else if (model.urlWithoutMeta) {
       const currentTab = await chrome.tabs.getCurrent();
       let tab: chrome.tabs.Tab;
       if (event.ctrlKey) {

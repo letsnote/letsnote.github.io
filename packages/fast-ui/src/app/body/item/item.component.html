@@ -3,7 +3,7 @@
         <a class="h-box" (click)="onLinkClick($event)" href="{{model?.urlWithoutMeta?.toString() ?? ''}}">
             <div class="left">
                 <div>
-                    <span>{{model.itemType === 0 ? '주석' : '노트'}}</span>
+                    <span>{{model.itemType === ItemType.Annotation ? '주석' : '노트'}}</span>
                     <span *ngIf="model.urlWithoutMeta !== undefined">
                         <span> in </span>
                         <span class="hostname">

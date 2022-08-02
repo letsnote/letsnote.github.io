@@ -55,8 +55,10 @@ export class GroupListComponent implements OnInit, OnDestroy, AfterViewInit {
           setTimeout(() => {
             this.hostElement.nativeElement.scrollTop = this.lastScrollPosition;
           }, 0);
-        }
-      }
+        }else
+          this.mode = 'no_key';
+      }else
+        this.mode = 'no_key';
       await this.updateGroupItemCount();
     } catch (e) {
       console.warn(e);

@@ -34,6 +34,7 @@ export class ItemComponent implements OnInit, OnChanges {
   ) { }
   NoteBoxMode = NoteBoxMode;
   noteBoxMode: NoteBoxMode = NoteBoxMode.View;
+  ItemType = ItemType;
   autoResize = true;
   @Input()
   model: ItemModel | undefined;
@@ -196,6 +197,7 @@ export interface ItemModel extends _Types.AnnotationsResponse.Row {
 export enum ItemType {
   Annotation,
   PageNote,
+  EmptySource
 }
 
 enum NoteBoxMode {

@@ -1,8 +1,5 @@
-import { Injectable } from '@angular/core';
-import { getAnnotations } from 'hypothesis-data';
 import { composeUrl } from '../../fragment/fragment';
-import { ItemModel, ItemType } from '../item/item.component';
-import { ItemListModel } from './item-list-model';
+import { ItemModel } from '../item/item.component';
 
 export class AnnotationFetchService {
   // constructor(private key: string, private groupId: string) { }
