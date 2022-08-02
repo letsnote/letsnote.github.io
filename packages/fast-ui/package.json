@@ -6,17 +6,20 @@
     "start": "ng serve",
     "build": "ng build --base-href /fast-ui/",
     "watch": "ng build --base-href /fast-ui/ --watch --configuration development",
-    "page": "ng build --output-path docs --base-href /thesis-note/",
-    "test": "ng test"
+    "page": "ng build --output-path ../../docs --base-href /",
+    "test": "ng test",
+    "prepwa": "ng build --base-href /",
+    "pwa": "lite-server -c bs-config.js",
+    "postpage": "shx cp ../../docs/index.html ../../docs/404.html"
   },
   "private": true,
   "dependencies": {
     "@angular/animations": "~13.2.0",
+    "@angular/cdk": "~13.2.0",
     "@angular/common": "~13.2.0",
     "@angular/compiler": "~13.2.0",
     "@angular/core": "~13.2.0",
     "@angular/forms": "~13.2.0",
-    "@angular/cdk": "~13.2.0",
     "@angular/platform-browser": "~13.2.0",
     "@angular/platform-browser-dynamic": "~13.2.0",
     "@angular/router": "~13.2.0",
@@ -45,6 +48,8 @@
     "karma-coverage": "~2.1.0",
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "~1.7.0",
+    "lite-server": "^2.6.1",
+    "shx": "^0.3.4",
     "typescript": "~4.5.2"
   }
 }
