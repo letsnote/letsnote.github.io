@@ -11,7 +11,7 @@ import { ConfigService } from './setting/config.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements AfterViewInit {
-  title = 'Thesis Note';
+  title = 'Gungo Note';
   @ViewChild("outer")
   outerElementRef: ElementRef | undefined;
 
@@ -34,6 +34,7 @@ export class AppComponent implements AfterViewInit {
       this.initializeHandlerForExtension();
     else{
       this.appService.enableComponentRendering();
+      this.router.navigate(['groups'], {replaceUrl: true});
     }
   }
 
