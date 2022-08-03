@@ -12,7 +12,7 @@
                         </span>
                     </span>
                 </div>
-                <div class="font-semibold title" *ngIf="model.urlWithoutMeta !== undefined">
+                <div class="font-semibold title" *ngIf="model.document.title?.[0] !== undefined">
                     {{model.document.title?.[0]}}
                 </div>
                 <div class="font-light">

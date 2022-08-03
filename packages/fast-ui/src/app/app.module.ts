@@ -29,6 +29,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { ShareComponent } from './share/share.component';
 import {DropdownModule} from 'primeng/dropdown';
+import {ToastModule} from 'primeng/toast';
 
 @NgModule({
   declarations: [
@@ -58,6 +59,7 @@ import {DropdownModule} from 'primeng/dropdown';
     DropdownModule,
     DialogModule,
     SplitButtonModule,
+    ToastModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
       // Register the ServiceWorker as soon as the app is stable

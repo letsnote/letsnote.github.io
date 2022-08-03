@@ -1,14 +1,8 @@
-<p>share works!</p>
-<p>{{title}}</p>
-<p>{{text}}</p>
-<p>{{url}}</p>
-<p-dialog header="그룹선택 후 저장" 
-    [(visible)]="displayMoveGroupDialog" 
-    [closable]="false"
-    [modal]="true" 
-    [style]="{width: '90vw', minHeight: '70%'}" 
-    [draggable]="false"
-    [resizable]="false">
+<div class="text-center mt-5">
+    {{notice}}
+</div>
+<p-dialog header="그룹선택 후 저장" [(visible)]="displayMoveGroupDialog" [closable]="false" [modal]="true"
+    [style]="{width: '90vw', minHeight: '70%'}" [draggable]="false" [resizable]="false">
     <p-dropdown [options]="groupList" placeholder="{{
         moveGroupDialogStatus === 'loading' ? '그룹을 불러오는 중입니다.' : (
             moveGroupDialogStatus === 'fail' ? '그룹을 불러오는 중 실패하였습니다.' : (
@@ -16,8 +10,15 @@
             )
         )
     }}" [formControl]="selectedGroupToMoveForm" optionLabel="name" optionValue="id"></p-dropdown>
+    <h4>공유할 대상</h4>
+    <ul>
+        <li>제목: {{title}}</li>
+        <li>내용: {{text}}</li>
+        <li>주소: {{url}}</li>
+    </ul>
     <ng-template pTemplate="footer">
         <p-button icon="pi pi-check" (click)="onSave()" label="저장" styleClass="p-button-text"></p-button>
-        <p-button icon="pi pi-times" (click)="onClose()" label="닫기" styleClass="p-button-danger p-button-text"></p-button>
+        <p-button icon="pi pi-times" (click)="onClose()" label="닫기" styleClass="p-button-danger p-button-text">
+        </p-button>
     </ng-template>
 </p-dialog>

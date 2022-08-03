@@ -1,6 +1,6 @@
 ///<reference types="chrome"/>
 
-import { AfterViewInit, Component, ElementRef, NgZone, OnChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, NgZone, OnChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, Route, Router } from '@angular/router';
 import { AppService } from './app.service';
 import { ContextMenuService } from './service/context-menu.service';
@@ -17,6 +17,20 @@ export class AppComponent implements AfterViewInit {
 
   constructor(private hostElement: ElementRef, private config: ConfigService, private extension: ContextMenuService, private router: Router, private appService: AppService, private route: ActivatedRoute
     , private ngZone: NgZone) {
+  }
+
+  deferredPrompt?: Event;
+
+  @HostListener('window:beforeinstallprompt', ['$event'])
+  onbeforeinstallprompt(e: Event) {
+    // Prevent the mini-infobar from appearing on mobile
+    e.preventDefault();
+    // Stash the event so it can be triggered later.
+    this.deferredPrompt = e;
+    // Update UI notify the user they can install the PWA
+    (window as any)?.showInstallPromotion?.();
+    // Optionally, send analytics event that PWA install promo was shown.
+    console.log(`'beforeinstallprompt' event was fired.`);
   }
 
   async ngAfterViewInit() {
