@@ -25,14 +25,19 @@ export class AnnotationCreationService {
     this.pushNewNote(row);
   }
 
-  async createNewAnnotation(groupId: string) {
+  async createNewAnnotation(groupId: string, additionalWebProperties?: {url?: string, title?: string, text?: string}): Promise<void>;
+  async createNewAnnotation(groupId: string): Promise<void>;
+  async createNewAnnotation(groupId: string, additionalWebProperties?: {url?: string, title?: string, text?: string}): Promise<void> {
     if (this.extensionService.isExtension()) {
       await this.createNewAnnotationOnExtension(groupId);
     } else
-      await this.createNewAnnotationOnPage(groupId, "EMPTY_SOURCE");
+      await this.createNewAnnotationOnPage(groupId
+        , additionalWebProperties?.url ?? "EMPTY_SOURCE"
+        , additionalWebProperties?.title ?? ''
+        , additionalWebProperties?.text ?? '');
   }
 
-  private async createNewAnnotationOnPage(groupId: string, customUrl: string) {
+  private async createNewAnnotationOnPage(groupId: string, customUrl: string, customTitle: string, customText: string) {
     if (!this.authService.isSignin)
       return Promise.reject("API키가 유효하지 않습니다.");
     try {
@@ -41,9 +46,9 @@ export class AnnotationCreationService {
       const row = await createAnnotations(this.authService.key, {
         group: groupId,
         tags: [],
-        text: '',
+        text: customText ?? '',
         user: profile.userid,
-        document: { title: [''] },
+        document: { title: [customTitle ?? ''] },
         uri: url,
         target: [],
         references: [],

@@ -27,6 +27,8 @@ import { DialogModule } from 'primeng/dialog';
 import {SplitButtonModule} from 'primeng/splitbutton';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
+import { ShareComponent } from './share/share.component';
+import {DropdownModule} from 'primeng/dropdown';
 
 @NgModule({
   declarations: [
@@ -35,7 +37,8 @@ import { environment } from '../environments/environment';
     // GroupListComponent,
     // GroupComponent,
     SettingComponent,
-    RenameComponent
+    RenameComponent,
+    ShareComponent
   ],
   imports: [
     BrowserModule,
@@ -52,6 +55,7 @@ import { environment } from '../environments/environment';
     ConfirmPopupModule,
     SliderModule,
     InputNumberModule,
+    DropdownModule,
     DialogModule,
     SplitButtonModule,
     ServiceWorkerModule.register('ngsw-worker.js', {

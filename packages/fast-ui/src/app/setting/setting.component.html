@@ -1,6 +1,13 @@
 <div [formGroup]="formGroup" class="formGroup">
-    <h4>API Key
-        <a (click)="onKeyGetClick($event)" target="_blank" href="https://hypothes.is/account/developer">(찾아보기)</a></h4>
+    <h4>API Key (
+        <a (click)="onKeyGetClick($event, 'https://hypothes.is/login')"
+         target="_blank"
+          href="https://hypothes.is/login">Hypothes 로그인</a> 후 
+        <a (click)="onKeyGetClick($event, 'https://hypothes.is/account/developer')"
+         target="_blank"
+          href="https://hypothes.is/account/developer"> 복사</a>
+          )
+    </h4>
     <input style="width: 100%" type="text" pInputText formControlName="key">
     <h4>Font Size ({{fontSizeControl.value}}px)</h4>
     <!-- <input type="text" pInputText formControlName="fontSize"/> -->

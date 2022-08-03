@@ -34,7 +34,8 @@ export class AppComponent implements AfterViewInit {
       this.initializeHandlerForExtension();
     else{
       this.appService.enableComponentRendering();
-      this.router.navigate(['groups'], {replaceUrl: true});
+      if(window.location.pathname.length < 2)
+        this.router.navigate(['groups'], {replaceUrl: true});
     }
   }
 

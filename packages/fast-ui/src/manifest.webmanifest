@@ -1,6 +1,6 @@
 {
-  "name": "Gungo Note",
-  "short_name": "Gungo Note",
+  "name": "LetsNote",
+  "short_name": "LetsNote",
   "theme_color": "#1976d2",
   "background_color": "#fafafa",
   "display": "standalone",
@@ -37,5 +37,14 @@
       "type": "image/png",
       "purpose": "maskable any"
     }
-  ]
+  ],
+  "share_target": {
+    "action": "/share",
+    "params":
+    {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
 }

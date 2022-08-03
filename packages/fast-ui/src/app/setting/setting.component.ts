@@ -46,13 +46,13 @@ export class SettingComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach(s => s.unsubscribe());
   }
 
-  async onKeyGetClick(event: MouseEvent) {
+  async onKeyGetClick(event: MouseEvent, url: string) {
     if(!this.extensionService.isExtension())
       return;
     event.preventDefault();
     const currentTab = await chrome.tabs.getCurrent();
     let tab: chrome.tabs.Tab;
-    tab = await chrome.tabs.create({ index: currentTab.index + 1, url: 'https://hypothes.is/account/developer', active: true });
+    tab = await chrome.tabs.create({ index: currentTab.index + 1, url, active: true });
     // tab.id && this.appService.setInitialRoutesAfterNavigation(tab.id, this.route.snapshot.url.map(seg => seg.path), model.id, this.model?.length as number);
   }
 }

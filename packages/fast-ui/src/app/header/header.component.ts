@@ -46,7 +46,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     {
       label: '그룹',
       command: () => {
-        this.router.navigate(['groups'], { replaceUrl: true });
+        if(this.extensionService.isExtension())
+          this.router.navigate(['groups'], { replaceUrl: true });
+        else
+          window.history.back();
       },
     },
   ];
@@ -93,6 +96,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
             ...this.baseBreadcrumbItems,
             { label: `설정` },
           ];
+        } else if (urlWithoutHashFragment.includes('share')) {
+          this.currentRoute = CurrentRoute.Share;
+          this.breadcrumbItems = [
+            ...this.baseBreadcrumbItems,
+            { label: `공유` },
+          ];
         }
       }
     });
@@ -135,7 +144,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         name: `그룹${randomSeq}`,
         description: '',
       });
-      this.router.navigate(['groups', `${group.id}`], { replaceUrl: true });
+      this.router.navigate(['groups', `${group.id}`], { replaceUrl: this.extensionService.isExtension() ? true : false });
     } catch (e) {
       console.info(`Try to create a group again with another sequence number.`);
       this.onNewGroup(++tryCount);
@@ -152,7 +161,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
             icon: 'pi pi-key',
             command: () => {
               this.onOpenKey.emit();
-              this.router.navigate(['setting'], { replaceUrl: true });
+              this.router.navigate(['setting'], { replaceUrl: this.extensionService.isExtension() ? true : false });
             },
           },
         ],
@@ -204,4 +213,5 @@ enum CurrentRoute {
   Home,
   Group,
   Setting,
+  Share,
 }

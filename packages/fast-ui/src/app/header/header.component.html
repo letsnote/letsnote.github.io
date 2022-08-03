@@ -17,8 +17,11 @@
     <div class="m-auto" style="flex: 1;">
         <span class="p-input-icon-left">
             <i class="pi pi-search"></i>
-            <input type="text" pInputText [formControl]="headerService.searchInputControl" placeholder="검색"
-                class="p-inputtext-sm">
+            <span class="p-input-icon-right">
+                <i class="pi pi-times" *ngIf="(searchInput.value.length) > 0" (click)="headerService.searchInputControl.setValue('')"></i>
+                    <input #searchInput type="text" pInputText [formControl]="headerService.searchInputControl" placeholder="검색"
+                        class="p-inputtext-sm">     
+            </span>
         </span>
     </div>
     <div class="m-auto">

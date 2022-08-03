@@ -9,6 +9,7 @@ import { AppService } from '../../app.service';
 import { GroupListScrollService } from './group-list-scroll.service';
 import { GroupListModel, GroupModel } from 'src/app/group-model';
 import { HeaderService } from 'src/app/header/header.service';
+import { ExtensionService } from 'src/app/service/extension.service';
 
 @Component({
   templateUrl: './group-list.component.html',
@@ -20,8 +21,9 @@ export class GroupListComponent implements OnInit, OnDestroy, AfterViewInit {
   keyword: string = '';
   enabled = false;
   subscriptions: Subscription[] = [];
-  constructor(private hostElement: ElementRef, private config: ConfigService, private router: Router, private extensionService: ContextMenuService
+  constructor(private hostElement: ElementRef, private config: ConfigService, private router: Router, private contextMenuService: ContextMenuService
     , private headerService: HeaderService
+    , private extensionService: ExtensionService
     , private appService: AppService
     , private changeDetectRef: ChangeDetectorRef,
     private groupListScrollService: GroupListScrollService) {
@@ -142,7 +144,7 @@ export class GroupListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onGroupClick(model: GroupModel) {
-    this.router.navigate(['groups', model.id], { replaceUrl: true });
+    this.router.navigate(['groups', model.id], { replaceUrl: this.extensionService.isExtension() ? true : false });
   }
 
   async onGroupDeleteClick(model: GroupModel) {
@@ -169,7 +171,7 @@ export class GroupListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onContentMenuUpdate() {
     //TODO
-    this.extensionService.updateContextMenu(this.groupList);
+    this.contextMenuService.updateContextMenu(this.groupList);
   }
 
   onGroupRenameClick(event: { id: string, name: string }) {
