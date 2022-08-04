@@ -10,7 +10,7 @@ export class ShellElement extends HTMLElement {
     shadowRoot.innerHTML = html;
     this.outer = this.shadowRoot?.querySelector('.outer') as HTMLDivElement;
     this.iframe = this.shadowRoot?.querySelector('#angular') as HTMLIFrameElement;
-    const uri = chrome.runtime.getURL('fast-ui/index.html');
+    const uri = chrome.runtime.getURL('index.html');
     console.debug(`Angular URI: ${uri}`);
     this.iframe.src = uri;
   }

@@ -35,8 +35,6 @@ import {ToastModule} from 'primeng/toast';
   declarations: [
     AppComponent,
     HeaderComponent,
-    // GroupListComponent,
-    // GroupComponent,
     SettingComponent,
     RenameComponent,
     ShareComponent

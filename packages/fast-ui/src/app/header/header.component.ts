@@ -7,8 +7,8 @@ import { MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { GroupModel } from '../group-model';
 import { AnnotationCreationService } from '../service/annotation-creation.service';
-import { ContextMenuService as FragmentExtensionService } from '../service/context-menu.service';
-import { ExtensionService } from '../service/extension.service';
+import { ContextMenuService as FragmentExtensionService } from '../service/extension/context-menu.service';
+import { ExtensionService } from '../service/extension/extension.service';
 import { ConfigService } from '../setting/config.service';
 import { HeaderService } from './header.service';
 

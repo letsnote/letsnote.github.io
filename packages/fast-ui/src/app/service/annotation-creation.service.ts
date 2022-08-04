@@ -3,8 +3,8 @@ import { createAnnotations, getProfile } from 'hypothesis-data';
 import { Subject } from 'rxjs';
 import { composeUrl } from '../fragment/fragment';
 import { ItemModel } from '../body/item/item.component';
-import { ShellControllerService } from './shell-controller.service';
-import { ExtensionService } from './extension.service';
+import { ShellControllerService } from './extension/shell-controller.service';
+import { ExtensionService } from './extension/extension.service';
 import { AuthService } from './auth.service';
 
 @Injectable({

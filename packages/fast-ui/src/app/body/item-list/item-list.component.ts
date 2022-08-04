@@ -2,10 +2,9 @@ import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, QueryList,
 import { ActivatedRoute } from '@angular/router';
 import { updateAnnotation } from 'hypothesis-data';
 import { debounceTime, Subject, Subscription } from 'rxjs';
-import { AppService } from 'src/app/app.service';
 import { HeaderService } from 'src/app/header/header.service';
 import { AnnotationCreationService } from 'src/app/service/annotation-creation.service';
-import { ExtensionService } from 'src/app/service/extension.service';
+import { ExtensionService } from 'src/app/service/extension/extension.service';
 import { ConfigService } from 'src/app/setting/config.service';
 import { ItemComponent, ItemModel, ItemType } from '../item/item.component';
 import { ItemListScrollPositionService } from './scroll-position.service';
@@ -34,7 +33,7 @@ export class ItemListComponent implements OnInit, OnDestroy {
     , private route: ActivatedRoute
     , private extensionService: ExtensionService
     , private changeDetectorRef: ChangeDetectorRef
-    , private headerService: HeaderService, private appService: AppService, private scrollPositionService: ItemListScrollPositionService
+    , private headerService: HeaderService, private scrollPositionService: ItemListScrollPositionService
     , private annotationService: AnnotationCreationService) {
     let s = route.params.subscribe((param) => {
       this.groupId = param['groupId'];
@@ -104,10 +103,10 @@ export class ItemListComponent implements OnInit, OnDestroy {
       let tab: chrome.tabs.Tab;
       if (event.ctrlKey) {
         tab = await chrome.tabs.create({ index: currentTab.index + 1, url: model.urlWithoutMeta.toString(), active: true });
-        tab.id && this.appService.setInitialRoutesAfterNavigation(tab.id, this.route.snapshot.url.map(seg => seg.path), model.id, this.model?.length as number);
+        tab.id && this.extensionService.setInitialRoutesAfterNavigation(tab.id, this.route.snapshot.url.map(seg => seg.path), model.id, this.model?.length as number);
       } else {
         currentTab.id && chrome.tabs.sendMessage(currentTab.id, { type: 7, data: model.urlWithoutMeta.toString() });
-        currentTab.id && this.appService.setInitialRoutesAfterNavigation(currentTab.id, this.route.snapshot.url.map(seg => seg.path), model.id, this.model?.length as number);
+        currentTab.id && this.extensionService.setInitialRoutesAfterNavigation(currentTab.id, this.route.snapshot.url.map(seg => seg.path), model.id, this.model?.length as number);
       }
     }
   }

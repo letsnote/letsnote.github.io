@@ -55,8 +55,9 @@ module.exports = {
             patterns: [
                 { from: 'resource', to: 'resource' },
                 { from: 'manifest.json' },
+                { from: 'rules.json' },
                 { from: 'node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js' },
-                { from: '../fast-ui/dist/fast-ui', to: 'fast-ui' },
+                { from: '../fast-ui/dist/fast-ui', to: '' },
             ]
         })
     ]

@@ -1,9 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { AppService } from '../app.service';
-import { ExtensionService } from '../service/extension.service';
+import { CompService } from '../service/comp.service';
+import { ExtensionService } from '../service/extension/extension.service';
 import { ConfigService } from './config.service';
 
 @Component({
@@ -20,8 +19,8 @@ export class SettingComponent implements OnInit, OnDestroy {
     width: this.widthControl,
   });
   subscriptions: Subscription[] = [];
-  constructor(config: ConfigService, private extensionService: ExtensionService, private appService: AppService,
-    private route: ActivatedRoute) {
+
+  constructor(config: ConfigService, public compService: CompService) {
     this.keyControl.setValue(config.key);
     let s = this.keyControl.valueChanges.subscribe((value) => {
       config.key = value;
@@ -40,19 +39,9 @@ export class SettingComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-
   }
+  
   ngOnDestroy(): void {
     this.subscriptions.forEach(s => s.unsubscribe());
-  }
-
-  async onKeyGetClick(event: MouseEvent, url: string) {
-    if(!this.extensionService.isExtension())
-      return;
-    event.preventDefault();
-    const currentTab = await chrome.tabs.getCurrent();
-    let tab: chrome.tabs.Tab;
-    tab = await chrome.tabs.create({ index: currentTab.index + 1, url, active: true });
-    // tab.id && this.appService.setInitialRoutesAfterNavigation(tab.id, this.route.snapshot.url.map(seg => seg.path), model.id, this.model?.length as number);
   }
 }

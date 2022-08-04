@@ -3,12 +3,12 @@
         <p-breadcrumb [model]="breadcrumbItems"></p-breadcrumb>
     </div>
     <div class="m-auto">
-        <button pButton pRipple type="button" icon="pi pi-refresh" (click)="refresh()" *ngIf="!extensionService.isExtension() && currentGroup" 
+        <button pButton pRipple type="button" icon="pi pi-refresh" (click)="refresh()" *ngIf="!extensionService.isExtension()" 
         class="p-button-rounded p-button-text p-button-sm"></button>
         <button pButton pRipple type="button" icon="pi pi-ellipsis-h" class="p-button-rounded p-button-text p-button-sm"
             (click)="menu.toggle($event)"></button>
         <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-text p-button-sm"
-            (click)="close()"></button>
+            (click)="close()" *ngIf="extensionService.isExtension()"></button>
         <p-menu #menu [popup]="true" [model]="menuItems"></p-menu>
     </div>
 </div>

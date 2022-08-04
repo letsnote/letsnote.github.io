@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { GroupModel } from '../group-model';
-import { AnnotationCreationService } from './annotation-creation.service';
+import { GroupModel } from '../../group-model';
+import { AnnotationCreationService } from '../annotation-creation.service';
 
 //TODO: refactor
 @Injectable({

@@ -1,22 +1,21 @@
 <div [formGroup]="formGroup" class="formGroup">
     <h4>API Key (
-        <a (click)="onKeyGetClick($event, 'https://hypothes.is/login')"
-         target="_blank"
-          href="https://hypothes.is/login">Hypothes 로그인</a> 후 
-        <a (click)="onKeyGetClick($event, 'https://hypothes.is/account/developer')"
-         target="_blank"
-          href="https://hypothes.is/account/developer"> 복사</a>
-          )
+        <a (click)="compService.open($event, 'https://hypothes.is/login')" target="_blank"
+            href="https://hypothes.is/login">Hypothes 로그인</a> 후
+        <a (click)="compService.open($event, 'https://hypothes.is/account/developer')" target="_blank"
+            href="https://hypothes.is/account/developer"> 복사</a>
+        )
     </h4>
     <input style="width: 100%" type="text" pInputText formControlName="key">
     <h4>Font Size ({{fontSizeControl.value}}px)</h4>
-    <!-- <input type="text" pInputText formControlName="fontSize"/> -->
     <p-slider [min]="8" [max]="40" formControlName="fontSize"></p-slider>
     <h4>Width ({{widthControl.value}}em)</h4>
     <p-inputNumber class="w-full" [style]="{width:'100%'}" formControlName="width" mode="decimal" [showButtons]="true"
         inputId="minmax-buttons" [min]="30" [max]="100">
     </p-inputNumber>
-    <!-- <input min="30" max="100" type="text" pInputText formControlName="width" type="number" /> -->
-    <div><a href="https://www.flaticon.com/kr/free-icons/" title="도서 아이콘">도서 아이콘 제작자: apien - Flaticon</a>
+    <div>
+        <a (click)="compService.open($event, 'https://www.flaticon.com/free-icons/books')"
+            href="https://www.flaticon.com/free-icons/books" title="books icons" target="_blank">Books icons created by
+            Freepik - Flaticon</a>
     </div>
 </div>

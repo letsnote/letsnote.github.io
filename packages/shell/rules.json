@@ -1,0 +1,29 @@
+[
+    {
+        "id": 1,
+        "priority": 1,
+        "action": { "type": "allow" },
+        "condition": {
+            "regexFilter": "^chrome-extension://([^/]*)/index.html(.*)",
+            "resourceTypes": [
+                "sub_frame"
+            ]
+        }
+    },
+    {
+        "id": 2,
+        "priority": 1,
+        "action": {
+            "type": "redirect",
+            "redirect": {
+                "regexSubstitution": "chrome-extension://\\1/index.html/\\2"
+            }
+        },
+        "condition": {
+            "regexFilter": "^chrome-extension://([^/]*)/(.*)",
+            "resourceTypes": [
+                "sub_frame"
+            ]
+        }
+    }
+]

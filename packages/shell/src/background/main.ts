@@ -1,8 +1,6 @@
 import { Action } from "../common/action";
 
 export function entrypoint() {
-  chrome.runtime.onInstalled.addListener(() => {
-  });
 
   chrome.action.onClicked.addListener((tab) => {
     if (tab?.id) {

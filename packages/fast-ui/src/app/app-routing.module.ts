@@ -5,9 +5,6 @@ import { SettingComponent } from './setting/setting.component';
 import { ShareComponent } from './share/share.component';
 
 const routes: Routes = [
-  // { path: '', component: GroupListComponent }
-  // , { path: 'groups/:groupId', component: ItemListComponent }
-  // , 
   { path: 'setting', component: SettingComponent },
   { path: 'share', component: ShareComponent },
   { path: 'groups', loadChildren: () => import('./body/body.module').then(m => m.BodyModule) }, 

@@ -3,13 +3,12 @@ import * as api from 'hypothesis-data'
 import { Router } from '@angular/router';
 import { ConfigService } from '../../setting/config.service';
 import { deleteGroup, getProfile } from 'hypothesis-data';
-import { ContextMenuService } from '../../service/context-menu.service';
+import { ContextMenuService } from '../../service/extension/context-menu.service';
 import { Subscription } from 'rxjs';
-import { AppService } from '../../app.service';
 import { GroupListScrollService } from './group-list-scroll.service';
 import { GroupListModel, GroupModel } from 'src/app/group-model';
 import { HeaderService } from 'src/app/header/header.service';
-import { ExtensionService } from 'src/app/service/extension.service';
+import { ExtensionService } from 'src/app/service/extension/extension.service';
 
 @Component({
   templateUrl: './group-list.component.html',
@@ -24,7 +23,6 @@ export class GroupListComponent implements OnInit, OnDestroy, AfterViewInit {
   constructor(private hostElement: ElementRef, private config: ConfigService, private router: Router, private contextMenuService: ContextMenuService
     , private headerService: HeaderService
     , private extensionService: ExtensionService
-    , private appService: AppService
     , private changeDetectRef: ChangeDetectorRef,
     private groupListScrollService: GroupListScrollService) {
     this.keyword = this.headerService.searchInputControl.value; // TODO

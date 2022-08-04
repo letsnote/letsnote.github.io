@@ -1,7 +1,7 @@
 {
-  "name": "Thesis Note",
-  "version": "0.0.3",
-  "description": "An extension provides user interface like Edge Collection and the database backend with Hypothesis API.",
+  "name": "LetsNote",
+  "version": "0.0.1",
+  "description": "An extension provides a good interface like Edge Collection and the backend with Hypothesis API.",
   "content_scripts": [
     {
       "matches": [
@@ -24,7 +24,7 @@
     "128": "resource/w128.png"
   },
   "action": {
-    "default_title": "Thesis Note"
+    "default_title": "LetsNote"
   },
   "background": {
     "service_worker": "background.bundle.js"

@@ -2,8 +2,8 @@
 
 import { AfterViewInit, Component, ElementRef, HostListener, NgZone, OnChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, Route, Router } from '@angular/router';
-import { AppService } from './app.service';
-import { ContextMenuService } from './service/context-menu.service';
+import { ContextMenuService } from './service/extension/context-menu.service';
+import { ExtensionService } from './service/extension/extension.service';
 import { ConfigService } from './setting/config.service';
 @Component({
   selector: 'app-root',
@@ -11,12 +11,14 @@ import { ConfigService } from './setting/config.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements AfterViewInit {
-  title = 'Gungo Note';
   @ViewChild("outer")
-  outerElementRef: ElementRef | undefined;
+  outerElementRef?: ElementRef;
 
-  constructor(private hostElement: ElementRef, private config: ConfigService, private extension: ContextMenuService, private router: Router, private appService: AppService, private route: ActivatedRoute
-    , private ngZone: NgZone) {
+  constructor(private config: ConfigService, 
+    private contextMenuService: ContextMenuService, 
+    private router: Router, 
+    private ngZone: NgZone,
+    private extensionService: ExtensionService) {
   }
 
   deferredPrompt?: Event;
@@ -42,52 +44,45 @@ export class AppComponent implements AfterViewInit {
     });
     this.config.widthObservable.subscribe((emSize) => {
       const msg = { type: 2, size: emSize };
-      this.extension.sendMessageToParent(msg);
+      this.contextMenuService.sendMessageToParent(msg);
     });
-    if(chrome?.tabs)
-      this.initializeHandlerForExtension();
-    else{
-      this.appService.enableComponentRendering();
-      if(window.location.pathname.length < 2)
-        this.router.navigate(['groups'], {replaceUrl: true});
+    if (this.extensionService.isExtension()){
+      this.initializeExtension();
+    }else {
+      if (window.location.pathname.length < 2)
+        this.router.navigate(['groups'], { replaceUrl: true });
     }
   }
 
-  firstShow = false;
+  private firstShow = false;
 
-  private async initializeHandlerForExtension(){
-    const currentTab = await chrome.tabs.getCurrent();
-
+  private async initializeExtension() {
+    const tab = await chrome.tabs.getCurrent();
     chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-      this.ngZone.run(async () => { // allows you to reenter Angular zone from a task that was executed outside of the Angular zone
-        if (sender.tab?.id === currentTab.id) {
-          if (msg.type === 5){ // SHOWN
-            this.appService.enableComponentRendering();
-            if(!this.firstShow){
-              this.router.navigate(['groups'], {replaceUrl: true});
+      this.ngZone.run(async () => {
+        if (sender.tab?.id === tab.id) {
+          if (msg.type === 5) { // Shown
+            if (!this.firstShow) {
+              this.router.navigate(['groups'], { replaceUrl: true });
               this.firstShow = true;
             }
-            // this.appService.updateVisible(true);
             sendResponse();
-          }else if (msg.type === 4){
-            this.appService.disableComponentRendering();
-            // this.appService.updateVisible(false);
+          } else if (msg.type === 4) {
             sendResponse();
           }
         }
       });
     });
-    
-    currentTab.id && chrome.tabs.sendMessage(currentTab.id, { type: 9 });
-    this.initializeRoutes();
+    this.restoreRoute();
+    tab.id && chrome.tabs.sendMessage(tab.id, { type: 9 });
   }
 
-  private async initializeRoutes() {
+  private async restoreRoute() {
     const tab = await chrome.tabs.getCurrent();
     if (tab.id) {
-      const routesAndFragment = this.appService.getAndRemoveInitialRoutes(tab.id)
+      const routesAndFragment = this.extensionService.removeInitialRoutes(tab.id)
       if (routesAndFragment) {
-        await this.router.navigate(routesAndFragment.routes, {queryParams: {listLength: routesAndFragment.listLength, fragment: routesAndFragment.fragment}});
+        await this.router.navigate(routesAndFragment.routes, { queryParams: { listLength: routesAndFragment.listLength, fragment: routesAndFragment.fragment } });
         chrome.tabs.sendMessage(tab.id, { type: 8 });
       }
     }
@@ -95,6 +90,6 @@ export class AppComponent implements AfterViewInit {
 
   onClose() {
     const msg = { type: 3 };
-    this.extension.sendMessageToParent(msg);
+    this.contextMenuService.sendMessageToParent(msg);
   }
 }
