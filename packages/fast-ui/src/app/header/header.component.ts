@@ -161,7 +161,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
             icon: 'pi pi-key',
             command: () => {
               this.onOpenKey.emit();
-              this.router.navigate(['setting'], { replaceUrl: this.extensionService.isExtension() ? true : false });
+              this.router.navigate(['setting'], { replaceUrl: this.extensionService.isExtension() ? true :
+                (this.currentRoute !== CurrentRoute.Home ? true : false) });
             },
           },
         ],
