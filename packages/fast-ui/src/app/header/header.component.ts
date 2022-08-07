@@ -48,6 +48,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
       command: () => {
         if(this.extensionService.isExtension())
           this.router.navigate(['groups'], { replaceUrl: true });
+        else if(window.history.length == 1) // Newly opened window
+          this.router.navigate(['groups'], { replaceUrl: true });
         else
           window.history.back();
       },
