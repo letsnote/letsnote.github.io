@@ -97,7 +97,8 @@ export class ItemListComponent implements OnInit, OnDestroy {
     if(!this.extensionService.isExtension()){
       if(model.itemType == ItemType.EmptySource)
         return;
-      window.open(model.uri, "_blank");
+      if(model.urlWithoutMeta)
+        window.open(model.urlWithoutMeta.toString(), "_blank");
     } else if (model.urlWithoutMeta) {
       const currentTab = await chrome.tabs.getCurrent();
       let tab: chrome.tabs.Tab;
