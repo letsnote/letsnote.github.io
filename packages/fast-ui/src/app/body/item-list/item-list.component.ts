@@ -97,8 +97,16 @@ export class ItemListComponent implements OnInit, OnDestroy {
     if(!this.extensionService.isExtension()){
       if(model.itemType == ItemType.EmptySource)
         return;
-      if(model.urlWithoutMeta)
-        window.open(model.urlWithoutMeta.toString(), "_blank");
+      if(model.urlWithoutMeta){
+        const el = this.hostElement.nativeElement as HTMLElement;
+        const anchor = el.ownerDocument.createElement('a');
+        anchor.href = model.urlWithoutMeta.toString();
+        anchor.target = "_blank";
+        el.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+      }
+        // window.open(model.urlWithoutMeta.toString(), "_blank");
     } else if (model.urlWithoutMeta) {
       const currentTab = await chrome.tabs.getCurrent();
       let tab: chrome.tabs.Tab;
