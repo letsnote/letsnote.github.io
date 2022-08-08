@@ -12,7 +12,7 @@
                         </span>
                     </span>
                 </div>
-                <div class="font-semibold title" *ngIf="(model.document.title?.[0] !== undefined) && !model.uri.toUpperCase().startsWith('EMPTY')">
+               <div class="font-semibold title" *ngIf="(model.document.title?.[0] !== undefined) || !model.uri.toUpperCase().startsWith('EMPTY')">
                     {{model.document.title?.[0]}}
                 </div>
                 <div class="font-light">

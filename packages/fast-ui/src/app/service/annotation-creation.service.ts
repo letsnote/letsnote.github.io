@@ -32,7 +32,7 @@ export class AnnotationCreationService {
       await this.createNewAnnotationOnExtension(groupId);
     } else
       await this.createNewAnnotationOnPage(groupId
-        , additionalWebProperties?.url ?? "EMPTY_SOURCE"
+        , additionalWebProperties?.url ?? `EMPTY_SOURCE://${additionalWebProperties?.title}`
         , additionalWebProperties?.title ?? ''
         , additionalWebProperties?.text ?? '');
   }
