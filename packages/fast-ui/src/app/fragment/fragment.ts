@@ -1,33 +1,37 @@
-export function composeUrl(urlString: string, newDirectiveParameters?: { metaDirectiveParameter?: string, textDirectiveParameter?: string }) {
+export function composeUrl(urlString: string, newDirectiveParameters?: { metaDirectiveParameter?: string, encodedTextDirectiveParameter?: string }) {
     try {
         const url = new URL(urlString);
         const hashValue = url.hash.split(':~:')[0];
         const fragmentDirective = url.hash.split(':~:')[1];
-        const directiveMap = new Map<string, string>();
+        const encodedDirectiveMap = new Map<string, string>();
         if (fragmentDirective) {
             const directives = fragmentDirective.split('&');
             directives.forEach(d => {
                 let pair = d.split("=");
                 const key = pair.splice(0, 1)[0];
-                const value = decodeURIComponent(pair.join());
-                directiveMap.set(key, value);
+                const value = pair.join();
+                encodedDirectiveMap.set(key, value);
             })
         }
         if (newDirectiveParameters?.metaDirectiveParameter || newDirectiveParameters?.metaDirectiveParameter === "") {
             if (newDirectiveParameters.metaDirectiveParameter !== "")
-                directiveMap.set("meta", newDirectiveParameters.metaDirectiveParameter);
+                encodedDirectiveMap.set("meta", encodeURIComponent(newDirectiveParameters.metaDirectiveParameter));
             else
-                directiveMap.delete("meta");
+                encodedDirectiveMap.delete("meta");
         }
-        if (newDirectiveParameters?.textDirectiveParameter || newDirectiveParameters?.textDirectiveParameter === "") {
-            if (newDirectiveParameters.textDirectiveParameter !== "")
-                directiveMap.set("text", newDirectiveParameters.textDirectiveParameter);
+        if (newDirectiveParameters?.encodedTextDirectiveParameter || newDirectiveParameters?.encodedTextDirectiveParameter === "") {
+            if (newDirectiveParameters.encodedTextDirectiveParameter !== "")
+                encodedDirectiveMap.set("text", newDirectiveParameters.encodedTextDirectiveParameter);
             else
-                directiveMap.delete("text");
+                encodedDirectiveMap.delete("text");
         }
-        const newFragmentDirective = Array.from(directiveMap.entries()).map(([k, v]) => `${k}=${v}`).join('&');
+        const newFragmentDirective = Array.from(encodedDirectiveMap.entries()).map(([k, v]) => `${k}=${v}`).join('&');
         url.hash = `${hashValue ?? ''}${newFragmentDirective !== '' ? `:~:${newFragmentDirective}` : ''}`;
-        return { url, directiveMap };
+        const decodedMap = new Map(encodedDirectiveMap);
+        if(encodedDirectiveMap.has('meta')){
+            decodedMap.set('meta', decodeURIComponent(encodedDirectiveMap.get('meta')!));
+        }
+        return { url, directiveMap: decodedMap};
     } catch (e) {
         return undefined;
     }

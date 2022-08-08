@@ -38,7 +38,7 @@ export class ShareComponent implements OnInit {
   }
   
   async onSave(){
-    const regex = /"([^"]*)" ((http|https).*)/;
+    const regex = /"([^"]*)"\s*((http|https).*)/;
     if(this.selectedGroupToMoveForm.valid){
       if((this.url === undefined || this.url.length === 0) && (this.text?.match(regex)?.length ?? 0 >= 4)){
         const content = (this.text!.match(regex)!)[1];

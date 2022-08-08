@@ -36,7 +36,7 @@
             {{model.updated | date:'medium'}}
         </div>
 
-        <p-contextMenu [target]="box" [model]="contextMenuItems"></p-contextMenu>
+        <p-contextMenu [target]="box" *ngIf="noteBoxMode === NoteBoxMode.View" [model]="contextMenuItems"></p-contextMenu>
     </div>
     <p-confirmPopup></p-confirmPopup>
 </ng-container>

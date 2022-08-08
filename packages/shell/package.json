@@ -33,6 +33,6 @@
   },
   "dependencies": {
     "@webcomponents/webcomponentsjs": "^2.6.0",
-    "text-fragments-polyfill": "^5.3.0"
+    "text-fragments-polyfill": "^5.4.0"
   }
 }

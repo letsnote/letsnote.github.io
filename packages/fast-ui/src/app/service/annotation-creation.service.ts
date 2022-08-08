@@ -81,7 +81,7 @@ export class AnnotationCreationService {
       if (fragment?.selectedText) meta = { ...meta, selectedText: fragment.selectedText };
       const newUrl = composeUrl(url, {
         metaDirectiveParameter: JSON.stringify(meta),
-        textDirectiveParameter: fragment?.textDirectiveParameters,
+        encodedTextDirectiveParameter: fragment?.textDirectiveParameters,
       });
       const row = await createAnnotations(this.authService.key, {
         group: groupId,
